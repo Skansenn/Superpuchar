@@ -106,7 +106,7 @@
   .lb .e .rank { color:var(--amber); font-weight:bold; margin-right:10px; }
   .lb .e .who { color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .lb .e span:first-child { display:flex; align-items:center; flex:1; overflow:hidden; }
-  .lb .e .pts { color:var(--neon); font-weight:bold; }
+  .lb .e .pts { color:var(--neon); font-weight:bold; margin-left:12px; white-space:nowrap; }
   .lb .e .prizetag { margin-top:6px; font-size:clamp(11px,2.9vw,13px); color:var(--neon); letter-spacing:1px; }
   .amber{color:var(--amber)} .neon{color:var(--neon)} .hot{color:var(--hot)} .dim{color:var(--dim)} .ink{color:var(--ink)}
 </style>
@@ -768,6 +768,7 @@ function start(){
 
 function shoot(){
   if(state!=='play'||ball)return;
+  ball={x:200,y:220}; // freeze meter instantly
   SFX.shoot();
   const p=meter;
   const perfect=p>=PERFECT[0]&&p<=PERFECT[1];
@@ -886,10 +887,10 @@ function handleChoiceAnswer(index){
   const item=quiz[qi];
   const btns=panel.querySelectorAll('.opt');
   
-  btns[item.c].classList.add('ok');
-  if(index!==item.c) btns[index].classList.add('no');
+  btns[item.correct].classList.add('ok');
+  if(index!==item.correct) btns[index].classList.add('no');
   
-  const correct = (index===item.c);
+  const correct = (index===item.correct);
   let pts=0;
   if(correct){
     qok++;
@@ -1039,7 +1040,7 @@ function showLeaderboard(list, myNick){
       html += '<div class="e' + (me ? ' me' : '') + (i < PRIZES_LIST.length ? ' win' : '') + '">' +
                 '<div class="erow">' +
                   '<span><span class="rank">' + (i+1) + '.</span><span class="who">' + escapeHtml(e.nick) + '</span></span>' +
-                  '<span class="pts">' + e.score + '</span>' +
+                  '<span class="pts">' + e.score + ' pkt</span>' +
                 '</div>' +
                 prize +
               '</div>';
@@ -1081,7 +1082,7 @@ function showLeaderboard(list, myNick){
         freshHtml += '<div class="e' + (me ? ' me' : '') + (i < PRIZES_LIST.length ? ' win' : '') + '">' +
                       '<div class="erow">' +
                         '<span><span class="rank">' + (i+1) + '.</span><span class="who">' + escapeHtml(e.nick) + '</span></span>' +
-                        '<span class="pts">' + e.score + '</span>' +
+                        '<span class="pts">' + e.score + ' pkt</span>' +
                       '</div>' +
                       prize +
                     '</div>';
