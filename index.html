@@ -252,7 +252,7 @@ muteBtn.onclick=()=>{ muted=!muted; muteBtn.textContent=muted?'🔇 DŹWIĘK: WY
 const CONFIG = {
   totalQuestions: 10,
   buyUrl: "https://bilety.plk.pl",
-  timeLimit: 45,         // czas na cały test w sekundach (zmienione z 60s)
+  timeLimit: 60,         // czas na cały test w sekundach
   supabaseUrl: "https://iggcitoprqjkjlydnjmr.supabase.co",
   supabaseKey: "sb_publishable_McsTvhSVvSsJzhZoQcJxsA_LU-1bmPf"
 };
@@ -1052,7 +1052,7 @@ function showIntro(){
       PRIZES_LIST.map((p,i)=>'<div class="p"><div class="n">'+(i+1)+'</div><div class="t"><b>'+p.t+'</b><span>'+p.d+'</span></div></div>').join('')+
     '</div>'+
     '<div class="rules">'+
-      '<div>Na quiz masz dokładnie <b>45 sekund</b></div>'+
+      '<div>Na quiz masz dokładnie <b>60 sekund</b></div>'+
       '<div>Punkty tylko za <b>poprawne</b> odpowiedzi</div>'+
       '<div>Im <b>szybciej</b> odpowiesz, tym więcej punktów</div>'+
       '<div>Pytania z <b>przepisów FIBA i PLK</b> — poziom ekspercki</div>'+
