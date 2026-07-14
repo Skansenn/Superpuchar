@@ -119,6 +119,7 @@
     </div>
 
     <div class="rules">
+      <div class="rule"><span class="ic">⏱️</span><span>Na cały test masz dokładnie <b>60 sekund</b></span></div>
       <div class="rule"><span class="ic">🎯</span><span>Punkty tylko za <b>poprawne</b> odpowiedzi</span></div>
       <div class="rule"><span class="ic">⚡</span><span>Im <b>szybciej</b> odpowiesz, tym więcej punktów</span></div>
       <div class="rule"><span class="ic">📏</span><span>Pytania z <b>przepisów FIBA i PLK</b> — poziom ekspercki</span></div>
@@ -132,12 +133,10 @@
   <section id="s-game" class="card hidden">
     <div class="ghead">
       <span class="qcount" id="qcount">1 / 10</span>
-      <div class="timerbox" id="globalTimerBox">
-        <span class="tclock" id="globalTimer">60</span><span class="ts">s</span>
-      </div>
       <span class="livepts" id="livepts">0 pkt</span>
     </div>
     <div class="progress"><div class="fill" id="pfill"></div></div>
+    <div class="tbar" id="globalTimerBar"><div class="tf" id="globalTfill" style="width: 100%;"></div></div>
     <div id="qbody"></div>
     <div class="fact" id="fact"></div>
     <div class="next-wrap hidden" id="nextWrap"><button class="btn" id="nextBtn">Dalej →</button></div>
@@ -169,7 +168,7 @@
       <button class="btn ghost" id="againBtn">Zagraj jeszcze raz</button>
     </div>
 
-    <div class="foot" id="demoNote">Wersja demonstracyjna: ranking działa lokalnie w przeglądarce. W konkursie o realne nagrody wynik i pozycja muszą być liczone po stronie serwera PLK — patrz dołączona specyfikacja backendu.</div>
+    <!-- Usunięto stopkę demo -->
   </section>
 
 </div>
@@ -612,6 +611,54 @@ let deck=[], idx=0, correctCount=0, points=0, answered=false, tickStart=0;
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
 
+const AudioFX = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
+  playCorrect() {
+    try {
+      this.init();
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.frequency.setValueAtTime(523.25, now); // C5
+      osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.15, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    } catch(e) {}
+  },
+  playWrong() {
+    try {
+      this.init();
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.frequency.setValueAtTime(220, now); // A3
+      osc.frequency.linearRampToValueAtTime(147, now + 0.2); // slur down to D3
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.2, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } catch(e) {}
+  }
+};
+
 function buildDeck(){
   const shuffled=shuffle([...BANK]);
   const picked=[]; let lastCat=null;
@@ -633,18 +680,24 @@ let timeLeft = 0;
 function startGlobalTimer(){
   if(globalTimerInterval) clearInterval(globalTimerInterval);
   timeLeft = CONFIG.timeLimit;
-  const box = $('#globalTimerBox');
-  box.classList.remove('warn', 'danger');
-  $('#globalTimer').textContent = timeLeft;
+  const fill = $('#globalTfill');
+  if(fill){
+    fill.classList.remove('warn', 'danger');
+    fill.style.background = '';
+    fill.style.width = '100%';
+  }
   
   globalTimerInterval = setInterval(() => {
     timeLeft--;
-    $('#globalTimer').textContent = timeLeft;
-    if(timeLeft <= 10){
-      box.classList.remove('warn');
-      box.classList.add('danger');
-    } else if(timeLeft <= 20){
-      box.classList.add('warn');
+    if(fill){
+      const pct = (timeLeft / CONFIG.timeLimit) * 100;
+      fill.style.width = pct + '%';
+      if(timeLeft <= 10){
+        fill.classList.remove('warn');
+        fill.style.background = 'var(--bad)'; // force update color
+      } else if(timeLeft <= 20){
+        fill.style.background = 'var(--gold)'; // force update color
+      }
     }
     if(timeLeft <= 0){
       clearInterval(globalTimerInterval);
@@ -732,12 +785,14 @@ function answerChoice(btn){
     if(bc)b.classList.add('correct');
   });
   if(!correct)btn.classList.add('wrong');
+  if(correct) AudioFX.playCorrect(); else AudioFX.playWrong();
   showFact(correct,award(correct),q.fact);
 }
 function answerEstimate(val){
   if(answered)return;answered=true;stopTimer();
   const q=deck[idx];const correct=Math.abs(val-q.answer)<=q.tol;
   const g=award(correct);const u=q.unit?(' '+q.unit):'';
+  if(correct) AudioFX.playCorrect(); else AudioFX.playWrong();
   showFact(correct,g,'Twój typ: <b>'+val+u+'</b> · Poprawnie: <b>'+q.answer+u+'</b>. '+q.fact);
 }
 function showFact(correct,gain,text){
