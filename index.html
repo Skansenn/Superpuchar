@@ -178,7 +178,7 @@ muteBtn.onclick=()=>{ muted=!muted; muteBtn.textContent=muted?'🔇 DŹWIĘK: WY
 const CONFIG = {
   totalQuestions: 10,
   buyUrl: "https://bilety.plk.pl",
-  timeLimit: 60,         // czas na cały test w sekundach
+  timeLimit: 45,         // czas na cały test w sekundach (zmienione z 60s)
   supabaseUrl: "https://iggcitoprqjkjlydnjmr.supabase.co",
   supabaseKey: "sb_publishable_McsTvhSVvSsJzhZoQcJxsA_LU-1bmPf"
 };
@@ -628,7 +628,27 @@ const BANK = [
 
 { type:"abcd", cat:"PLK — MVP", q:"Co oznacza nagroda MVP przyznawana w rozgrywkach PLK?",
   opts:["Najbardziej wartościowy zawodnik (Most Valuable Player)","Najlepszy trener sezonu","Najlepszy młody zawodnik","Najlepszy obrońca"],
-  correct:0, fact:"MVP to nagroda dla najbardziej wartościowego zawodnika rozgrywek." },
+  correct:0, fact:"MVP to nagroda dla najbardziej wartościowego zawodnika rozgrywek." },,
+  {"type":"abcd","cat":"PLK — Historia","q":"Który klub zdobył najwięcej tytułów mistrza Polski w koszykówce mężczyzn?","opts":["Anwil Włocławek","Legia Warszawa","WKS Śląsk Wrocław","Trefl Sopot"],"correct":2,"fact":"Śląsk jest 18-krotnym mistrzem Polski."},
+  {"type":"abcd","cat":"PLK — Reprezentacja","q":"Kto był pierwszym Polakiem, który wystąpił w meczu NBA?","opts":["Marcin Gortat","Maciej Lampe","Cezary Trybański","Adam Wójcik"],"correct":2,"fact":"Cezary Trybański był pierwszym Polakiem w NBA."},
+  {"type":"abcd","cat":"PLK — Reprezentacja","q":"Kto był pierwszym polskim koszykarzem, który zagrał w finale NBA?","opts":["Maciej Lampe","Marcin Gortat","Cezary Trybański","Szymon Szewczyk"],"correct":1,"fact":"Gortat wystąpił w finale NBA w 2009 roku jako zawodnik Orlando Magic."},
+  {"type":"abcd","cat":"PLK — Reprezentacja","q":"Którą reprezentację Polska pokonała w ćwierćfinale EuroBasketu 2022?","opts":["Hiszpanię","Francję","Słowenię","Serbię"],"correct":2,"fact":"Polacy wygrali 90:87 i awansowali do półfinału."},
+  {"type":"abcd","cat":"PLK — Kluby","q":"Który polski klub zdobył FIBA Europe Cup w 2023 roku?","opts":["Trefl Sopot","Anwil Włocławek","WKS Śląsk Wrocław","Zastal Zielona Góra"],"correct":1,"fact":"Anwil pokonał w dwumeczu finałowym francuski Cholet Basket."},
+  {"type":"abcd","cat":"PLK — Historia","q":"W którym mieście Polska zdobyła srebrny medal EuroBasketu w 1963 roku?","opts":["Warszawie","Poznaniu","Katowicach","Wrocławiu"],"correct":3,"fact":"Srebrny medal EuroBasketu zdobyto we Wrocławiu."},
+  {"type":"abcd","cat":"PLK — Historia","q":"Kto był trenerem reprezentacji Polski podczas srebrnego EuroBasketu w 1963 roku?","opts":["Witold Zagórski","Kazimierz Młynarczyk","Jerzy Kłyszejko","Eugeniusz Kijewski"],"correct":0,"fact":"Witold Zagórski poprowadził Polskę do srebrnego medalu."},
+  {"type":"abcd","cat":"PLK — Superpuchar","q":"Który klub wygrał pierwszy w historii Superpuchar Polski mężczyzn?","opts":["Anwil Włocławek","Zepter Śląsk Wrocław","Trefl Sopot","Hoop Pekaes Pruszków"],"correct":1,"fact":"W pierwszym meczu Śląsk pokonał Hoop Pekaes Pruszków 59:57."},
+  {"type":"abcd","cat":"PLK — Superpuchar","q":"Czyjego imienia jest obecnie Superpuchar Polski w koszykówce mężczyzn?","opts":["Marcina Gortata","Mieczysława Łopatki","Adama Wójcika","Macieja Zielińskiego"],"correct":2,"fact":"Superpuchar Polski nosi imię Adama Wójcika."},
+  {"type":"abcd","cat":"PLK — Superpuchar","q":"Kto zdobył najwięcej punktów w pierwszym meczu o Superpuchar Polski?","opts":["Maciej Zieliński","Dominik Tomczyk","Adam Wójcik","Andrzej Pluta"],"correct":2,"fact":"Adam Wójcik zdobył w tym spotkaniu 20 punktów."},
+  {"type":"tf","cat":"PLK — Historia","q":"Reprezentacja Polski mężczyzn zdobyła kiedyś złoty medal mistrzostw Europy.","correct":false,"fact":"Największym sukcesem Polski jest srebrny medal EuroBasketu z 1963 roku."},
+  {"type":"tf","cat":"PLK — Reprezentacja","q":"Mateusz Ponitka zanotował triple-double w ćwierćfinale EuroBasketu 2022 przeciwko Słowenii.","correct":true,"fact":"Ponitka zdobył 26 punktów, 16 zbiórek i 10 asyst."},
+  {"type":"tf","cat":"PLK — Kluby","q":"Anwil Włocławek został pierwszym polskim klubem, który wygrał FIBA Europe Cup.","correct":true,"fact":"Anwil zdobył trofeum w 2023 roku."},
+  {"type":"tf","cat":"PLK — Reprezentacja","q":"Marcin Gortat zagrał w finale NBA jako zawodnik Phoenix Suns.","correct":false,"fact":"W finale NBA wystąpił w barwach Orlando Magic."},
+  {"type":"tf","cat":"PLK — Superpuchar","q":"Pierwszy mecz o Superpuchar Polski zakończył się różnicą tylko dwóch punktów.","correct":true,"fact":"Śląsk Wrocław pokonał Hoop Pekaes Pruszków 59:57."},
+  {"type":"estimate","cat":"PLK — Historia","q":"W którym roku Polska zdobyła srebrny medal mistrzostw Europy?","min":1950,"max":1980,"step":1,"answer":1963,"tol":5,"unit":""},
+  {"type":"estimate","cat":"PLK — Śląsk Wrocław","q":"Ile tytułów mistrza Polski ma WKS Śląsk Wrocław?","min":10,"max":25,"step":1,"answer":18,"tol":5,"unit":""},
+  {"type":"estimate","cat":"PLK — Reprezentacja","q":"Ile punktów zdobył Mateusz Ponitka w ćwierćfinale EuroBasketu 2022 przeciwko Słowenii?","min":10,"max":40,"step":1,"answer":26,"tol":5,"unit":""},
+  {"type":"estimate","cat":"PLK — Reprezentacja","q":"Ile punktów zdobyła Polska w zwycięskim ćwierćfinale EuroBasketu 2022 ze Słowenią?","min":70,"max":110,"step":1,"answer":90,"tol":5,"unit":""},
+  {"type":"estimate","cat":"PLK — Superpuchar","q":"W którym roku rozegrano pierwszy mecz o Superpuchar Polski mężczyzn?","min":1990,"max":2010,"step":1,"answer":1999,"tol":5,"unit":""}
 ];
 
 const $ = s => document.querySelector(s);
@@ -641,19 +661,52 @@ function shuffle(a){
   return a;
 }
 
+function isRulesQuestion(q) {
+  const c = q.cat.toLowerCase();
+  if (c.startsWith("plk") || c.startsWith("obl") || c.includes("mistrz") || c.includes("klub") || c.includes("puchar") || c.includes("mvp")) {
+    return false;
+  }
+  return true;
+}
+
 function buildDeck(){
-  const shuffled=shuffle([...BANK]);
-  const picked=[]; let lastCat=null;
-  for(const q of shuffled){
-    if(picked.length>=CONFIG.totalQuestions) break;
-    if(q.cat===lastCat) continue;
-    picked.push(q); lastCat=q.cat;
+  const rulesDeck = shuffle(BANK.filter(isRulesQuestion));
+  const generalDeck = shuffle(BANK.filter(q => !isRulesQuestion(q)));
+  
+  const picked = [];
+  let lastCat = null;
+  
+  // Pick exactly 4 rules questions
+  for(const q of rulesDeck) {
+    if(picked.length >= 4) break;
+    if(q.cat === lastCat) continue;
+    picked.push(q);
+    lastCat = q.cat;
   }
-  let i=0;
-  while(picked.length<CONFIG.totalQuestions && i<shuffled.length){
-    if(!picked.includes(shuffled[i])) picked.push(shuffled[i]); i++;
+  if(picked.length < 4) {
+    for(const q of rulesDeck) {
+      if(picked.length >= 4) break;
+      if(!picked.includes(q)) picked.push(q);
+    }
   }
-  return picked.slice(0,CONFIG.totalQuestions);
+  
+  // Pick exactly 6 general questions
+  lastCat = null;
+  const targetLen = 10;
+  for(const q of generalDeck) {
+    if(picked.length >= targetLen) break;
+    if(q.cat === lastCat) continue;
+    picked.push(q);
+    lastCat = q.cat;
+  }
+  if(picked.length < targetLen) {
+    for(const q of generalDeck) {
+      if(picked.length >= targetLen) break;
+      if(!picked.includes(q)) picked.push(q);
+    }
+  }
+  
+  return picked;
 }
 
 let state='menu', best=0;
@@ -743,7 +796,7 @@ function showIntro(){
         PRIZES_LIST.map((p,i)=>'<div class="p"><div class="n">'+(i+1)+'</div><div class="t"><b>'+p.t+'</b><span>'+p.d+'</span></div></div>').join('')+
       '</div>'+
       '<div class="rules">'+
-        '<div>⏱️ Na quiz masz dokładnie <b>60 sekund</b></div>'+
+        '<div>⏱️ Na quiz masz dokładnie <b>45 sekund</b></div>'+
         '<div>🎯 Punkty tylko za <b>poprawne</b> odpowiedzi</div>'+
         '<div>⚡ Im <b>szybciej</b> odpowiesz, tym więcej punktów</div>'+
         '<div>📏 Pytania z <b>przepisów FIBA i PLK</b> — poziom ekspercki</div>'+
@@ -929,11 +982,21 @@ function handleEstimateAnswer(value){
   picked=value;
   const item=quiz[qi];
   
-  const correct = Math.abs(value-item.answer)<=item.tol;
+  const diff = Math.abs(value - item.answer);
+  const correct = diff <= 5;
   let pts=0;
   if(correct){
     qok++;
-    pts=Math.round(QMIN+(QMAX-QMIN)*(qTimeLeft/QUIZ_TIME));
+    const basePts = Math.round(QMIN+(QMAX-QMIN)*(qTimeLeft/QUIZ_TIME));
+    if (diff === 0) {
+      pts = basePts;
+    } else if (diff === 1) {
+      pts = Math.round(basePts * 0.75);
+    } else if (diff <= 3) {
+      pts = Math.round(basePts * 0.50);
+    } else {
+      pts = Math.round(basePts * 0.25);
+    }
     qpts+=pts; score+=pts;
   }
   if(score>best)best=score;
