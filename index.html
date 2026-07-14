@@ -107,10 +107,11 @@
     background:var(--panel2); border:1px solid var(--line);
     display:flex; align-items:center; justify-content:center; font-size:16px;
   }
-  .rules div:nth-child(1)::before { content:'⏱️'; }
-  .rules div:nth-child(2)::before { content:'🎯'; }
-  .rules div:nth-child(3)::before { content:'⚡'; }
-  .rules div:nth-child(4)::before { content:'📏'; }
+  .rules div:nth-child(1)::before { content:'🏀'; }
+  .rules div:nth-child(2)::before { content:'⏱️'; }
+  .rules div:nth-child(3)::before { content:'🎯'; }
+  .rules div:nth-child(4)::before { content:'⚡'; }
+  .rules div:nth-child(5)::before { content:'📏'; }
   .rules div b { color:var(--ink); font-weight:600; }
   
   .row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
@@ -1071,11 +1072,11 @@ function showCanvas(on){ stage.style.display=on?'block':'none'; }
 function showIntro(){
   state='intro'; showCanvas(false); tap.style.display='none'; hint.textContent='';
   panel.innerHTML=
-    '<div class="lead">Najpierw rzucaj za 3 w trybie Arcade, potem odpowiedz na 10 pytań o przepisy i PLK. Im szybciej, tym więcej punktów. Najlepsi w rankingu zgarniają bilety.</div>'+
     '<div class="prizes">'+
       PRIZES_LIST.map((p,i)=>'<div class="p"><div class="n">'+(i+1)+'</div><div class="t"><b>'+p.t+'</b><span>'+p.d+'</span></div></div>').join('')+
     '</div>'+
     '<div class="rules">'+
+      '<div>Najpierw <b>rzucasz za 3</b> w trybie Arcade</div>'+
       '<div>Na quiz masz dokładnie <b>60 sekund</b></div>'+
       '<div>Punkty tylko za <b>poprawne</b> odpowiedzi</div>'+
       '<div>Im <b>szybciej</b> odpowiesz, tym więcej punktów</div>'+
