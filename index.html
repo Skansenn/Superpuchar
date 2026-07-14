@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wyzwanie Superpuchar PLK — zgarnij miejsca przy parkiecie</title>
+<style>
+  :root{
+    --bg:#070b14; --panel:#0f1626; --panel2:#151d30;
+    --line:#22304a; --line2:#33456a;
+    --ink:#eaf0fb; --muted:#8a9bbd; --dim:#586b8f;
+    --accent:#ff4d2e; --gold:#ffc24d; --silver:#c8d4e8; --bronze:#e08a4a;
+    --good:#28d17c; --bad:#ff4d4d;
+    --radius:14px;
+    --disp:"Archivo","Arial Narrow",sans-serif;
+    --body:"Inter",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 16px 44px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .eyebrow{font-family:var(--disp);text-transform:uppercase;letter-spacing:2.5px;font-size:12px;font-weight:800;color:var(--accent)}
+  h1{font-family:var(--disp);font-weight:900;font-size:36px;line-height:1;letter-spacing:-.5px;text-transform:uppercase;margin:8px 0}
+  h1 .hl{color:var(--accent)}
+  .lead{color:var(--muted);font-size:15px;line-height:1.55;margin:12px 0 20px}
+  .btn{width:100%;height:52px;border:none;border-radius:12px;background:var(--accent);color:#1a0603;font-family:var(--disp);font-weight:900;font-size:17px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:transform .08s,filter .15s}
+  .btn:hover{filter:brightness(1.07)} .btn:active{transform:scale(.985)}
+  .btn.sec{background:transparent;border:1px solid var(--line2);color:var(--ink)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);height:44px;font-size:14px}
+  .btn:disabled{opacity:.5;cursor:default}
+  .ladder{display:flex;flex-direction:column;gap:9px;margin:0 0 20px}
+  .prize{display:flex;align-items:center;gap:13px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+  .prize .pl{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:900;font-size:15px;color:#0b0f18}
+  .prize.r1 .pl{background:var(--gold)} .prize.r2 .pl{background:var(--silver)}
+  .prize.r3 .pl{background:var(--bronze)} .prize.r4 .pl{background:#7d8aa3}
+  .prize.r1{border-color:rgba(255,194,77,.4)}
+  .prize .pt{font-size:13.5px;line-height:1.35}
+  .prize .pt b{font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:.5px;font-size:14px}
+  .prize.r1 .pt b{color:var(--gold)}
+  .rules{display:flex;flex-direction:column;gap:9px;margin:0 0 20px}
+  .rule{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
+  .rule .ic{flex:none;width:32px;height:32px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px}
+  .rule b{color:var(--ink);font-weight:600}
+  .foot{text-align:center;font-size:11px;color:var(--dim);margin-top:20px;line-height:1.5}
+  .ghead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .qcount{font-family:var(--disp);font-weight:800;font-size:14px;color:var(--muted)}
+  .livepts{font-family:var(--disp);font-weight:900;font-size:15px;color:var(--gold)}
+  .timerbox{display:inline-flex;align-items:baseline;gap:2px;font-family:var(--disp);font-weight:900;
+    padding:3px 12px;border-radius:99px;border:1px solid var(--line2);background:var(--panel2);
+    transition:color .2s,border-color .2s,background .2s}
+  .timerbox .tclock{font-size:17px;line-height:1}
+  .timerbox .ts{font-size:11px;color:var(--dim)}
+  .timerbox.warn{color:var(--gold);border-color:rgba(255,194,77,.5)}
+  .timerbox.danger{color:var(--bad);border-color:rgba(255,77,77,.6);background:rgba(255,77,77,.08)}
+  .progress{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:0 0 6px}
+  .progress .fill{height:100%;background:var(--accent);width:0;transition:width .3s}
+  .tbar{height:5px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:0 0 18px}
+  .tbar .tf{height:100%;background:var(--good);width:100%;transition:width .95s linear,background .3s}
+  .tbar .tf.warn{background:var(--gold)} .tbar .tf.danger{background:var(--bad)}
+  .cat{display:inline-block;font-family:var(--disp);text-transform:uppercase;letter-spacing:1.5px;font-size:11px;font-weight:800;color:var(--accent);background:rgba(255,77,46,.1);border:1px solid rgba(255,77,46,.25);border-radius:99px;padding:4px 11px;margin-bottom:13px}
+  .diff{margin-left:6px;color:var(--dim)}
+  .q{font-size:19px;line-height:1.4;font-weight:600;margin-bottom:20px}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:14px 16px;font-size:14.5px;line-height:1.4;color:var(--ink);cursor:pointer;transition:border-color .12s,background .12s;font-family:var(--body)}
+  .opt:hover{border-color:var(--line2)}
+  .opt.correct{border-color:var(--good);background:rgba(40,209,124,.13)}
+  .opt.wrong{border-color:var(--bad);background:rgba(255,77,77,.13)}
+  .opt:disabled{cursor:default}
+  .opt .k{display:inline-block;font-family:var(--disp);font-weight:800;color:var(--dim);margin-right:10px}
+  .fact{margin-top:16px;background:var(--panel2);border-left:3px solid var(--gold);padding:12px 14px;font-size:13.5px;line-height:1.5;color:var(--muted);border-radius:0 8px 8px 0;display:none}
+  .fact.show{display:block} .fact b{color:var(--ink)}
+  .gain{float:right;font-family:var(--disp);font-weight:900;color:var(--good)}
+  .next-wrap{margin-top:18px}
+  .slwrap{margin:14px 0 4px}
+  .slval{font-family:var(--disp);font-weight:900;font-size:30px;text-align:center;margin-bottom:10px}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  .slmm{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-top:4px}
+  .scorebig{font-family:var(--disp);font-weight:900;font-size:60px;line-height:1;text-align:center;color:var(--gold);margin:6px 0}
+  .scoresub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:18px}
+  .standing{text-align:center;border:1px solid var(--line2);border-radius:12px;padding:16px;margin-bottom:18px}
+  .standing .pos{font-family:var(--disp);font-weight:900;font-size:34px}
+  .standing .posl{font-size:13px;color:var(--muted);margin-top:2px}
+  .standing.podium{border-color:var(--gold);background:rgba(255,194,77,.06)}
+  .standing.podium .pos{color:var(--gold)}
+  .gate label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+  .gate .sub{font-size:12.5px;color:var(--dim);margin-bottom:12px;line-height:1.4}
+  .field{width:100%;height:46px;background:var(--panel2);border:1px solid var(--line2);border-radius:10px;color:var(--ink);padding:0 14px;font-size:15px;font-family:var(--body);margin-bottom:10px}
+  .field:focus{outline:none;border-color:var(--accent)}
+  .consent{display:flex;gap:9px;align-items:flex-start;margin:2px 0 14px;font-size:12px;color:var(--dim);line-height:1.4}
+  .consent input{margin-top:2px;accent-color:var(--accent)}
+  .err{color:var(--bad);font-size:12.5px;margin:0 0 10px;display:none}
+  .lbtitle{font-family:var(--disp);text-transform:uppercase;letter-spacing:1.5px;font-size:13px;font-weight:800;color:var(--muted);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+  .lbrow{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);margin-bottom:7px}
+  .lbrow.me{border-color:var(--accent);background:rgba(255,77,46,.08)}
+  .lbrow.top{border-color:rgba(255,194,77,.35)}
+  .lbrow .rk{flex:none;width:26px;font-family:var(--disp);font-weight:900;font-size:15px;text-align:center;color:var(--dim)}
+  .lbrow.top .rk{color:var(--gold)}
+  .lbrow .nm{flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lbrow .pr{font-size:11px;color:var(--dim);font-weight:400}
+  .lbrow .sc{font-family:var(--disp);font-weight:900;font-size:15px;color:var(--gold)}
+  .blocked{text-align:center;padding:10px 0}
+  .hidden{display:none}
+  @media(max-width:420px){h1{font-size:30px}.scorebig{font-size:52px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- START -->
+  <section id="s-start" class="card">
+    <div class="eyebrow">Superpuchar PLK · Wyzwanie kibica</div>
+    <h1>Zagraj o <span class="hl">miejsca przy parkiecie</span></h1>
+    <p class="lead">10 turbo trudnych pytań o przepisy gry i Polską Ligę Koszykówki. Punkty zdobywasz za każdą poprawną odpowiedź — a im szybciej odpowiadasz, tym więcej. Najlepsi w rankingu zgarniają bilety na Superpuchar.</p>
+
+    <div class="ladder">
+      <div class="prize r1"><span class="pl">1</span><div class="pt"><b>Miejsca przy parkiecie</b><br><span style="color:var(--muted)">Courtside dla 2 osób — najlepszy widok w hali</span></div></div>
+      <div class="prize r2"><span class="pl">2</span><div class="pt"><b>Finał — niedziela</b><br><span style="color:var(--muted)">2× bilet na niedzielny finał</span></div></div>
+      <div class="prize r3"><span class="pl">3</span><div class="pt"><b>Sobota — mecz nr 1</b><br><span style="color:var(--muted)">2× bilet na pierwszy mecz w sobotę</span></div></div>
+      <div class="prize r4"><span class="pl">4</span><div class="pt"><b>Sobota — mecz nr 2</b><br><span style="color:var(--muted)">2× bilet na drugi mecz w sobotę</span></div></div>
+    </div>
+
+    <div class="rules">
+      <div class="rule"><span class="ic">🎯</span><span>Punkty tylko za <b>poprawne</b> odpowiedzi</span></div>
+      <div class="rule"><span class="ic">⚡</span><span>Im <b>szybciej</b> odpowiesz, tym więcej punktów</span></div>
+      <div class="rule"><span class="ic">📏</span><span>Pytania z <b>przepisów FIBA i PLK</b> — poziom ekspercki</span></div>
+    </div>
+
+    <button class="btn" id="startBtn">Podejmuję wyzwanie →</button>
+    <div class="foot">Jeden udział na osobę. Po zakończeniu podajesz dane, żebyśmy mogli skontaktować się ze zwycięzcami.</div>
+  </section>
+
+  <!-- GAME -->
+  <section id="s-game" class="card hidden">
+    <div class="ghead">
+      <span class="qcount" id="qcount">1 / 10</span>
+      <span class="livepts" id="livepts">0 pkt</span>
+    </div>
+    <div class="progress"><div class="fill" id="pfill"></div></div>
+    <div id="qbody"></div>
+    <div class="fact" id="fact"></div>
+    <div class="next-wrap hidden" id="nextWrap"><button class="btn" id="nextBtn">Dalej →</button></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="s-result" class="card hidden">
+    <div class="eyebrow" style="text-align:center">Koniec wyzwania</div>
+    <div class="scorebig" id="finalScore">0</div>
+    <div class="scoresub" id="finalSub"></div>
+
+    <div class="standing" id="standing">
+      <div class="pos" id="posNum">—</div>
+      <div class="posl" id="posLabel">Twoje miejsce w rankingu</div>
+    </div>
+
+    <div class="gate" id="gate">
+      <label for="nick">Wpisz nick, aby pojawić się w rankingu</label>
+      <div class="sub">Twój wynik jest już policzony — dodaj nick, a od razu zobaczysz swoje miejsce w top 10.</div>
+      <input type="text" id="nick" class="field" placeholder="Twój nick" maxlength="24">
+      <div class="err" id="err">Wpisz nick (min. 2 znaki).</div>
+      <button class="btn" id="saveBtn">Pokaż moje miejsce w rankingu →</button>
+    </div>
+
+    <div id="lbWrap" class="hidden">
+      <div class="lbtitle"><span>🏆</span> Ranking — top 10</div>
+      <div id="lbList"></div>
+      <div style="height:14px"></div>
+      <button class="btn ghost" id="againBtn">Zagraj jeszcze raz</button>
+    </div>
+
+    <div class="foot" id="demoNote">Wersja demonstracyjna: ranking działa lokalnie w przeglądarce. W konkursie o realne nagrody wynik i pozycja muszą być liczone po stronie serwera PLK — patrz dołączona specyfikacja backendu.</div>
+  </section>
+
+</div>
+<script>
+/* ============================================================
+   KONFIGURACJA — do podmiany przez zespół PLK
+   ============================================================ */
+const CONFIG = {
+  totalQuestions: 10,
+  basePoints: 100,       // punkty za poprawną odpowiedź
+  speedBonusMax: 150,    // maks. bonus za szybką odpowiedź
+  speedWindow: 20,       // sek. — odpowiedź poniżej = pełny bonus, potem maleje do 0
+  buyUrl: "https://bilety.plk.pl",
+  // Wspólny ranking na żywo (Supabase). Klucz publishable jest bezpieczny w przeglądarce.
+  supabaseUrl: "https://iggcitoprqjkjlydnjmr.supabase.co",
+  supabaseKey: "sb_publishable_McsTvhSVvSsJzhZoQcJxsA_LU-1bmPf"
+};
+
+/* BANK PYTAŃ wstrzyknięty poniżej jako const BANK */
+// ============================================================
+// BANK PYTAŃ — Wyzwanie Superpuchar PLK
+// Przepisy: oparte na "Oficjalne Interpretacje FIBA (OBRI) 2024/2025".
+// PLK: ogólne pytania o rozgrywki.
+// Poziom: ekspercki. Zespół PLK powinien przejrzeć całość przed publikacją.
+// typy: abcd | tf | estimate
+// ============================================================
+const BANK = [
+
+// ==================== ART. 39 — BÓJKA ====================
+{ type:"abcd", cat:"Bójka (art. 39)", q:"Rezerwowi A6 i B6 wchodzą na boisko podczas bójki, ale w niej nie uczestniczą. Jaka jest tego konsekwencja?",
+  opts:["Obaj zostają zdyskwalifikowani za samo opuszczenie strefy ławki","Tylko upomnienie","Faul techniczny dla nich osobiście","Brak kary, bo nie było kontaktu"],
+  correct:0, fact:"Samo opuszczenie strefy ławki w sytuacji bójki oznacza dyskwalifikację — udział w bójce nie jest konieczny (art. 39)." },
+
+{ type:"tf", cat:"Bójka (art. 39)", q:"Za dyskwalifikację zmienników, którzy opuścili strefę ławki podczas bójki, karany jest trener drużyny — pojedynczym faulem technicznym.",
+  correct:true, fact:"Trener otrzymuje jeden faul techniczny za opuszczenie strefy ławki przez osoby ze swojej ławki (art. 39-3)." },
+
+{ type:"abcd", cat:"Bójka (art. 39)", q:"Jaka jest kara za faul techniczny trenera orzeczony w wyniku sytuacji bójki (opuszczenie ławki)?",
+  opts:["2 rzuty wolne bez ustawienia przy polu i posiadanie dla przeciwnika","1 rzut wolny i posiadanie","Tylko posiadanie piłki","Rzut sędziowski"],
+  correct:0, fact:"Karą są 2 rzuty wolne (bez zawodników wzdłuż pola) oraz posiadanie piłki dla przeciwników (art. 39-3)." },
+
+{ type:"abcd", cat:"Bójka (art. 39)", q:"Po bójce, w której wszystkie kary kasują się wzajemnie, jak wznawia się grę i ile jest na zegarze akcji?",
+  opts:["Drużyna, która miała piłkę, wprowadza ją; na zegarze akcji tyle, ile było w chwili zatrzymania","Rzut sędziowski, 24 s","Posiadanie dla gospodarzy, 24 s","Wznowienie z linii ataku, zawsze 14 s"],
+  correct:0, fact:"Piłkę wprowadza drużyna, która ją posiadała, z czasem akcji, jaki wskazywał zegar w chwili bójki (art. 39-1)." },
+
+{ type:"tf", cat:"Bójka (art. 39)", q:"Trener, który sam opuszcza strefę ławki i czynnie bierze udział w bójce, otrzymuje faul dyskwalifikujący — ale bez dodatkowego, drugiego faulu za sam udział.",
+  correct:true, fact:"Trener dostaje jeden faul dyskwalifikujący za opuszczenie ławki i brak pomocy sędziom; nie dolicza się drugiego za udział (art. 39-7)." },
+
+// ============ ART. 42 — SYTUACJE SPECJALNE ============
+{ type:"abcd", cat:"Sytuacje specjalne (art. 42)", q:"A1 w akcji rzutowej jest faulowany przez B1, a następnie — wciąż w akcji rzutowej — przez B2. Co z faulem B2?",
+  opts:["Faul B2 się pomija, chyba że jest niesportowy lub dyskwalifikujący","Oba faule zawsze wykonuje się","Tylko faul B2 się liczy","Kasują się nawzajem"],
+  correct:0, fact:"Drugi faul (B2) w tej samej akcji rzutowej pomija się, o ile nie jest niesportowy ani dyskwalifikujący (art. 42-3)." },
+
+{ type:"abcd", cat:"Sytuacje specjalne (art. 42)", q:"B1 fauluje A1 przy jego celnym rzucie z gry, po czym A1 dostaje faul techniczny. Jak rozstrzygnąć?",
+  opts:["Punkty A1 liczą się; równe kary (faul B1 i techniczny A1) kasują się; wznowienie jak po koszu","Punkty nie liczą się, 2 rzuty wolne dla B","A1 wykonuje 1 rzut wolny","Rzut sędziowski"],
+  correct:0, fact:"Punkty A1 są zaliczone, a takie same kary (faul osobisty i techniczny) kasują się wzajemnie (art. 42-5)." },
+
+{ type:"tf", cat:"Sytuacje specjalne (art. 42)", q:"Gdy faul niesportowy B1 i faul techniczny A1 wystąpią przy celnym koszu A1, kary te NIE kasują się, bo nie są takie same.",
+  correct:true, fact:"Faul niesportowy i techniczny nie są równe, więc się nie kasują — wykonuje się obie kary (art. 42-7)." },
+
+{ type:"abcd", cat:"Sytuacje specjalne (art. 42)", q:"Zawodnik A1 po sfaulowaniu rzuca piłką w B1 (tułów, ręce). Jak zwykle klasyfikuje się reakcję A1?",
+  opts:["Faul techniczny dla A1","Faul osobisty","Bez kary","Faul niesportowy zawsze"],
+  correct:0, fact:"Rzucenie piłką w przeciwnika (w tułów/ręce) to faul techniczny A1; faul B1 pozostaje w mocy (art. 42-8)." },
+
+{ type:"abcd", cat:"Sytuacje specjalne (art. 42)", q:"A1 po faulu rzuca piłką z bliska prosto w GŁOWĘ B1. Jak to klasyfikować?",
+  opts:["Faul dyskwalifikujący dla A1","Faul techniczny","Faul osobisty","Upomnienie"],
+  correct:0, fact:"Rzucenie piłką prosto w głowę z bliska to faul dyskwalifikujący A1 (art. 42-9)." },
+
+// ======== ART. 44 — POMYŁKA MOŻLIWA DO NAPRAWIENIA ========
+{ type:"abcd", cat:"Pomyłka do naprawienia (art. 44)", q:"Które z poniższych JEST pomyłką możliwą do naprawienia (kategoria 1)?",
+  opts:["Przyznanie niezasłużonego rzutu wolnego","Błędna ocena kroków","Niecelny rzut z gry","Spóźniony gwizdek przy aucie"],
+  correct:0, fact:"Lista correctable errors obejmuje m.in. przyznanie niezasłużonego rzutu wolnego, pominięcie należnego, błędne zaliczenie punktów (art. 44-1)." },
+
+{ type:"tf", cat:"Pomyłka do naprawienia (art. 44)", q:"Pomyłka możliwa do naprawienia może być skorygowana w dowolnym momencie meczu, nawet po jego zakończeniu.",
+  correct:false, fact:"Correctable error da się naprawić tylko w ściśle określonym oknie czasowym; po jego upływie należy ją pominąć (art. 44-2/44-3)." },
+
+{ type:"abcd", cat:"Pomyłka do naprawienia (art. 44)", q:"Błąd nastąpił, gdy zegar wskazywał 3:37 w 2. kwarcie, a wykryto go przy 0:39 w 4. kwarcie. Co robić?",
+  opts:["Nie można już naprawić — pomyłkę należy pominąć","Zawsze naprawić","Powtórzyć kwartę","Przyznać rzuty wolne"],
+  correct:0, fact:"Po przekroczeniu limitu czasu (2:00 do końca 4. kwarty) możliwość naprawy wygasa (art. 44-3b)." },
+
+{ type:"tf", cat:"Pomyłka do naprawienia (art. 44)", q:"Rzuty wolne wykonane w wyniku pomyłki (błędnie przyznane) są anulowane niezależnie od tego, czy były celne, czy nie.",
+  correct:true, fact:"Przy korekcie błędnie przyznanych rzutów wolnych anuluje się je bez względu na wynik (art. 44-6/44-7)." },
+
+// ======== ART. 12 — NAPRZEMIENNE POSIADANIE ========
+{ type:"abcd", cat:"Naprzemienne posiadanie (art. 12)", q:"Drużyna, która po rzucie sędziowskim na start meczu NIE zdobyła kontroli nad żywą piłką, otrzymuje:",
+  opts:["Prawo do pierwszego wprowadzenia z tytułu naprzemiennego posiadania","Dodatkowy rzut wolny","Nic — decyduje kolejny rzut sędziowski","Wybór strony boiska"],
+  correct:0, fact:"Drużyna bez pierwszej kontroli piłki dostaje pierwsze wprowadzenie ze strzałki naprzemiennego posiadania (art. 12-1)." },
+
+{ type:"tf", cat:"Naprzemienne posiadanie (art. 12)", q:"Po tym, jak piłka zostanie legalnie dotknięta przez zawodnika na boisku przy wprowadzeniu z naprzemiennego posiadania, błąd w przyznaniu piłki nie może już zostać naprawiony.",
+  correct:true, fact:"Od momentu legalnego dotknięcia piłki błędu przy naprzemiennym posiadaniu nie naprawia się (art. 12-9)." },
+
+{ type:"abcd", cat:"Naprzemienne posiadanie (art. 12)", q:"Skaczący A1 dotyka piłki przy rzucie sędziowskim, ZANIM osiągnęła najwyższy punkt. Co orzeka sędzia?",
+  opts:["Błąd A1 — piłkę dostaje drużyna B do wprowadzenia","Powtórka rzutu sędziowskiego","Faul techniczny A1","Nic, gra toczy się dalej"],
+  correct:0, fact:"Dotknięcie piłki przed najwyższym punktem to błąd; piłkę wprowadza przeciwnik (art. 12-3)." },
+
+// ======== ART. 29/50 — CZAS AKCJI ========
+{ type:"abcd", cat:"Czas akcji (art. 29/50)", q:"Rzut z gry oddany pod koniec czasu akcji — sygnał brzmi, gdy piłka jest w powietrzu. Piłka dotyka obręczy i odbija się. Co dalej?",
+  opts:["Gra toczy się dalej, zegar akcji ustawia się na 24 s (nowa kontrola)","Naruszenie czasu akcji","Zegar akcji na 14 s","Koniec akcji, piłka dla obrony"],
+  correct:0, fact:"Jeśli piłka dotknie obręczy, sygnał ignoruje się, a przy nowej kontroli obowiązuje 24 s (art. 29/50-1)." },
+
+{ type:"tf", cat:"Czas akcji (art. 29/50)", q:"Jeśli rzut zostaje legalnie zablokowany, sygnał czasu akcji brzmi, a potem B1 fauluje A1 — faul ten się ignoruje (chyba że niesportowy/dyskwalifikujący).",
+  correct:true, fact:"Po błędzie czasu akcji faul zwykły popełniony po sygnale jest ignorowany, o ile nie jest niesportowy ani dyskwalifikujący (art. 29/50-4)." },
+
+{ type:"abcd", cat:"Zegar 24/14", q:"Drużyna ataku zdobywa zbiórkę w ataku po tym, jak piłka dotknęła obręczy. Na ile ustawia się zegar akcji?",
+  opts:["14 sekund","24 sekundy","Pozostaje bez zmian","8 sekund"],
+  correct:0, fact:"Zbiórka w ataku po kontakcie z obręczą resetuje zegar akcji na 14 s." },
+
+// ======== ART. 36/37/38 — FAULE ========
+{ type:"abcd", cat:"Faul techniczny (art. 36)", q:"Ile rzutów wolnych przyznaje się za faul techniczny wg aktualnych przepisów FIBA?",
+  opts:["Jeden rzut wolny, a gra wraca do stanu sprzed przewinienia","Dwa i posiadanie","Dwa bez posiadania","Trzy"],
+  correct:0, fact:"Za faul techniczny — 1 rzut wolny, po czym gra wraca do stanu sprzed przewinienia." },
+
+{ type:"tf", cat:"Rozpraszanie (art. 36)", q:"Obrońca, który macha rękami przed oczami rzucającego lub głośno krzyczy, by go rozproszyć w akcji rzutowej, może zostać ukarany faulem technicznym.",
+  correct:true, fact:"Celowe rozpraszanie rzucającego (machanie, krzyk, tupanie) jest zabronione i karane technicznym (art. 36-3/36-4)." },
+
+{ type:"abcd", cat:"Zbyt wielu zawodników (art. 36)", q:"Sędziowie odkrywają, że drużyna A ma 6 zawodników na boisku przy włączonym zegarze. Co robią?",
+  opts:["Naprawiają błąd niezwłocznie, nie stawiając przeciwnika w gorszej sytuacji","Przerywają mecz","Anulują całą kwartę","Nakładają walkower"],
+  correct:0, fact:"Błąd liczby zawodników naprawia się niezwłocznie, dbając by przeciwnik nie stracił (art. 36-5)." },
+
+{ type:"abcd", cat:"Faul niesportowy (art. 37)", q:"Które kryterium NIE służy ocenie faulu niesportowego?",
+  opts:["To, czy zawodnik jest gwiazdą zespołu","Brak próby zagrania piłki","Nadmierny, twardy kontakt","Kontakt od tyłu/z boku na rywalu w przewadze"],
+  correct:0, fact:"Status zawodnika jest bez znaczenia — liczy się natura kontaktu i próba (lub jej brak) zagrania piłki (art. 37)." },
+
+{ type:"tf", cat:"Dyskwalifikacja", q:"Dwa faule niesportowe w jednym meczu oznaczają dyskwalifikację zawodnika.",
+  correct:true, fact:"Dwa niesportowe = dyskwalifikacja. Tak samo dwa techniczne lub kombinacja techniczny + niesportowy." },
+
+{ type:"tf", cat:"Dyskwalifikacja", q:"Kombinacja jednego faulu technicznego i jednego niesportowego w tym samym meczu skutkuje dyskwalifikacją.",
+  correct:true, fact:"Techniczny + niesportowy również prowadzi do dyskwalifikacji zawodnika." },
+
+{ type:"abcd", cat:"Wykluczenie (art. 36)", q:"Kiedy zawodnik staje się 'zawodnikiem wykluczonym'?",
+  opts:["Po piątym faulu osobistym, faulu technicznym lub niesportowym","Dopiero po szóstym faulu","Po dwóch faulach w ataku","Po jednym niesportowym"],
+  correct:0, fact:"Piąty faul osobisty (albo techniczny/niesportowy powodujący limit) czyni zawodnika wykluczonym (art. 36-8)." },
+
+// ======== CZAS, ZEGARY, WZNOWIENIA ========
+{ type:"estimate", cat:"Czas gry", q:"Ile minut trwa jedna kwarta w koszykówce FIBA?",
+  min:8, max:15, step:1, answer:10, unit:"min", tol:0,
+  fact:"Kwarta FIBA trwa 10 minut (w NBA 12)." },
+
+{ type:"estimate", cat:"Czas gry", q:"Ile minut trwa przerwa między 1. a 2. kwartą w meczu FIBA?",
+  min:1, max:5, step:1, answer:2, unit:"min", tol:0,
+  fact:"Przerwy 1-2 i 3-4 trwają po 2 minuty; główna (po 2. kwarcie) 15 minut." },
+
+{ type:"estimate", cat:"Dogrywka", q:"Ile minut trwa jedna dogrywka?",
+  min:3, max:10, step:1, answer:5, unit:"min", tol:0,
+  fact:"Każda dogrywka trwa 5 minut." },
+
+{ type:"estimate", cat:"Przerwa główna", q:"Ile minut trwa przerwa główna (po 2. kwarcie)?",
+  min:10, max:20, step:1, answer:15, unit:"min", tol:0,
+  fact:"Przerwa główna trwa 15 minut." },
+
+{ type:"abcd", cat:"8 sekund", q:"Ile czasu ma drużyna na przeniesienie piłki ze strefy obrony do strefy ataku?",
+  opts:["8 sekund","10 sekund","5 sekund","24 sekundy"],
+  correct:0, fact:"Na przejście do strefy ataku — 8 sekund." },
+
+{ type:"abcd", cat:"5 sekund", q:"Kiedy dochodzi do naruszenia '5 sekund'?",
+  opts:["Gdy ściśle kryty zawodnik nie zagra piłki w 5 s","Gdy kozłuje ponad 5 s","Gdy stoi w polu 5 s","Gdy trzyma piłkę nad głową 5 s"],
+  correct:0, fact:"5 sekund dotyczy ściśle krytego zawodnika, który nie poda/rzuci/zakozłuje w czasie 5 s." },
+
+{ type:"tf", cat:"3 sekundy", q:"Naruszenia 3 sekund nie orzeka się, jeśli zawodnik przebywający w polu ograniczonym jest w trakcie akcji rzutowej.",
+  correct:true, fact:"Gdy zawodnik jest w akcji rzutowej lub natychmiast opuszcza pole, naruszenia 3 s się nie orzeka." },
+
+{ type:"estimate", cat:"Wprowadzenie", q:"Ile sekund ma zawodnik na wprowadzenie piłki zza linii?",
+  min:3, max:8, step:1, answer:5, unit:"sek", tol:0,
+  fact:"Na wprowadzenie piłki zza linii — 5 sekund." },
+
+{ type:"abcd", cat:"Ostatnie 2 minuty", q:"W ostatnich 2 minutach 4. kwarty (i dogrywek), po celnym koszu i wzięciu czasu, skąd drużyna wznawia grę?",
+  opts:["Z linii wznowienia na swoim polu ataku","Zza własnej linii końcowej","Z koła środkowego","Z linii rzutów wolnych"],
+  correct:0, fact:"W ostatnich 2 min po koszu i time-oucie wznawia się z linii wznowienia na polu ataku." },
+
+// ======== GRA PIŁKĄ, KROKI, KOZŁOWANIE ========
+{ type:"abcd", cat:"Kroki (art. 25)", q:"Ile kroków wolno wykonać po 'zebraniu' piłki w biegu, zanim się ją zagra?",
+  opts:["Dwa kroki","Jeden krok","Trzy kroki","Zero"],
+  correct:0, fact:"Po zebraniu piłki w ruchu — dwa kroki (rytm dwutaktu)." },
+
+{ type:"tf", cat:"Kozłowanie (art. 24)", q:"Po zakończeniu kozłowania zawodnik może rozpocząć je ponownie, o ile wcześniej nie stracił kontroli nad piłką.",
+  correct:false, fact:"Podwójne kozłowanie jest zabronione; ponowne kozłowanie możliwe tylko po utracie kontroli (rzut, przechwyt)." },
+
+{ type:"abcd", cat:"Powrót piłki (art. 30)", q:"Zawodnik ataku kontrolujący piłkę w strefie ataku cofa ją do strefy obrony. Co orzeka sędzia?",
+  opts:["Naruszenie — powrót piłki na pole obrony","Legalne przez 8 s","Faul","Nic, jeśli był kryty"],
+  correct:0, fact:"Powrót kontrolowanej piłki na własne pole obrony to naruszenie ('backcourt', art. 30)." },
+
+// ======== KOSZ, WARTOŚĆ, INGERENCJA ========
+{ type:"abcd", cat:"Wartość rzutu (art. 16)", q:"Zawodnik rzuca 'za 3', ale stopa dotyka linii. Rzut celny. Ile punktów?",
+  opts:["2 punkty","3 punkty","0","1"],
+  correct:0, fact:"Dotknięcie linii = rzut za 2. Do 3 obie stopy muszą być za linią." },
+
+{ type:"tf", cat:"Ingerencja (art. 31)", q:"Obrońca może dotknąć piłki, gdy leży ona na obręczy kosza.",
+  correct:false, fact:"Dotknięcie piłki leżącej na obręczy to ingerencja (goaltending/interference)." },
+
+{ type:"abcd", cat:"Ingerencja (art. 31)", q:"Obrońca dopuszcza się goaltendingu przy rzucie zza linii 6,75 m. Ile punktów dla ataku?",
+  opts:["3 punkty","2 punkty","1 punkt","0 — powtórka"],
+  correct:0, fact:"Goaltending przy rzucie za 3 = przyznanie 3 punktów." },
+
+{ type:"abcd", cat:"Rzut wolny (art. 43)", q:"Wykonujący rzut wolny przekracza linię, zanim piłka dotknie obręczy. Rzut celny. Co orzeka sędzia?",
+  opts:["Naruszenie wykonującego — kosz nie liczy się","Kosz liczy się","Powtórka rzutu","Kosz + dodatkowy rzut"],
+  correct:0, fact:"Przekroczenie linii przez wykonującego przed dotknięciem obręczy anuluje celny rzut." },
+
+// ======== SYTUACJA PIŁKI, RZUT SĘDZIOWSKI ========
+{ type:"abcd", cat:"Piłka uwięziona (art. 12)", q:"Piłka utknęła między obręczą a tablicą. Jak wznawia się grę?",
+  opts:["Naprzemiennym posiadaniem (strzałka)","Rzutem sędziowskim","Posiadaniem dla obrony","Powtórką akcji"],
+  correct:0, fact:"Piłka uwięziona między obręczą a tablicą to sytuacja rozstrzygana strzałką posiadania." },
+
+{ type:"tf", cat:"Rozpoczęcie meczu (art. 9)", q:"Mecz FIBA rozpoczyna się rzutem sędziowskim na kole środkowym.",
+  correct:true, fact:"Start meczu to rzut sędziowski na kole środkowym; kolejne sytuacje sporne — strzałka." },
+
+{ type:"abcd", cat:"Faul obustronny (art. 35)", q:"Sędzia orzeka faul obustronny (bez innych sankcji, żadna drużyna nie miała wyraźnej kontroli). Jak wznowić grę?",
+  opts:["Naprzemiennym posiadaniem (strzałka)","Rzutem sędziowskim","Posiadaniem dla gospodarzy","Rzutami wolnymi dla obu"],
+  correct:0, fact:"Faul obustronny bez innych kar → wznowienie zgodnie ze strzałką lub do stanu kontroli sprzed faulu (art. 35)." },
+
+// ======== ZASADY OGÓLNE, WYMIARY ========
+{ type:"estimate", cat:"Zawodnicy (art. 4)", q:"Ilu zawodników jednej drużyny gra jednocześnie na boisku?",
+  min:4, max:7, step:1, answer:5, unit:"", tol:0,
+  fact:"Pięciu zawodników z każdej drużyny na boisku." },
+
+{ type:"estimate", cat:"Faule osobiste", q:"Po ilu faulach osobistych zawodnik opuszcza grę?",
+  min:3, max:8, step:1, answer:5, unit:"", tol:0,
+  fact:"Piąty faul osobisty oznacza opuszczenie gry." },
+
+{ type:"estimate", cat:"Faule drużynowe", q:"Po ilu faulach drużynowych w kwarcie kolejny faul obrony daje rzuty wolne (bonus)?",
+  min:3, max:7, step:1, answer:4, unit:"", tol:0,
+  fact:"Po 4 faulach drużynowych w kwarcie każdy następny = 2 rzuty wolne." },
+
+{ type:"estimate", cat:"Wymiary boiska", q:"Jaka jest długość boiska FIBA (w metrach)?",
+  min:24, max:32, step:1, answer:28, unit:"m", tol:0,
+  fact:"Boisko FIBA: 28 m długości, 15 m szerokości." },
+
+{ type:"estimate", cat:"Wymiary boiska", q:"Jaka jest szerokość boiska FIBA (w metrach)?",
+  min:12, max:18, step:1, answer:15, unit:"m", tol:0,
+  fact:"Szerokość boiska FIBA — 15 m." },
+
+{ type:"estimate", cat:"Kosz", q:"Na jakiej wysokości (w cm) zawieszona jest obręcz kosza?",
+  min:280, max:340, step:1, answer:305, unit:"cm", tol:2,
+  fact:"305 cm — czyli 10 stóp." },
+
+{ type:"estimate", cat:"Linia za 3", q:"W jakiej odległości (na wprost, w metrach) przebiega łuk za 3 punkty w FIBA?",
+  min:6, max:8, step:1, answer:7, unit:"m", tol:1,
+  fact:"Linia za 3 FIBA: 6,75 m na wprost, 6,60 m w narożnikach." },
+
+{ type:"estimate", cat:"Piłka", q:"Jaki rozmiar piłki (numer) używany jest w koszykówce mężczyzn?",
+  min:5, max:8, step:1, answer:7, unit:"", tol:0,
+  fact:"Mężczyźni — rozmiar 7, kobiety — rozmiar 6." },
+
+{ type:"estimate", cat:"Czasy", q:"Ile przerw na żądanie (czasów) ma drużyna w drugiej połowie meczu?",
+  min:1, max:5, step:1, answer:3, unit:"", tol:0,
+  fact:"W drugiej połowie — 3 czasy (w pierwszej 2, w każdej dogrywce 1)." },
+
+{ type:"abcd", cat:"Zmiana (art. 18/19)", q:"Kiedy dozwolona jest zmiana zawodnika?",
+  opts:["Przy martwej piłce i zatrzymanym zegarze, po zgłoszeniu przy stoliku","W dowolnym momencie","Tylko podczas czasów","Wyłącznie między kwartami"],
+  correct:0, fact:"Zmiany są możliwe przy martwej piłce i zatrzymanym zegarze, po zgłoszeniu sekretarzowi." },
+
+// ======== SĘDZIOWANIE, STOLIK ========
+{ type:"abcd", cat:"Sędziowie", q:"Ilu sędziów prowadzi mecz w systemie trójkowym FIBA?",
+  opts:["Trzech (Crew Chief + 2 Umpire)","Dwóch","Czterech","Jeden i komisarz"],
+  correct:0, fact:"System trójkowy: Crew Chief i dwóch Umpire (mechanika Lead/Center/Trail)." },
+
+{ type:"tf", cat:"Sędziowie", q:"Sędziowie rotują między pozycjami Lead, Center i Trail w zależności od kierunku gry.",
+  correct:true, fact:"Rotacja Lead/Center/Trail wynika z mechaniki ruchu i kierunku akcji." },
+
+{ type:"abcd", cat:"Stolik", q:"Kto NIE należy do sędziów stolikowych (table officials)?",
+  opts:["Kapitan drużyny","Sekretarz","Mierzący czas","Operator zegara 24 s"],
+  correct:0, fact:"Przy stoliku: sekretarz, asystent, mierzący czas, operator 24 s — nie kapitan." },
+
+{ type:"abcd", cat:"IRS (Dodatek F)", q:"Do czego służy system powtórek wideo (IRS) w meczach FIBA?",
+  opts:["Do weryfikacji ściśle określonych sytuacji w wyznaczonych momentach meczu","Do przeglądania dowolnej akcji na życzenie trenera","Do liczenia punktów","Do pomiaru czasu gry"],
+  correct:0, fact:"IRS pozwala weryfikować tylko określone sytuacje (m.in. wartość rzutu, czas, faule) w dopuszczonych momentach (Dodatek F)." },
+
+// ======== FAUL W AKCJI RZUTOWEJ ========
+{ type:"abcd", cat:"Faul w akcji rzutowej", q:"A1 zostaje sfaulowany przy CELNYM rzucie za 2. Co przysługuje?",
+  opts:["Kosz liczy się + 1 rzut wolny","2 rzuty, kosz nie liczy","Tylko kosz","Kosz + 2 rzuty"],
+  correct:0, fact:"Celny rzut po faulu jest uznany + 1 dodatkowy rzut wolny ('and one')." },
+
+{ type:"abcd", cat:"Faul w akcji rzutowej", q:"A1 sfaulowany przy NIECELNYM rzucie za 3. Ile rzutów wolnych?",
+  opts:["3","2","1","0"],
+  correct:0, fact:"Niecelny rzut za 3 z faulem = 3 rzuty wolne." },
+
+{ type:"tf", cat:"Faul ofensywny", q:"Punkty zdobyte w akcji, w której atakujący popełnił faul w ataku, są uznawane.",
+  correct:false, fact:"Przy faulu ofensywnym kosz się nie liczy, a piłkę przejmuje przeciwnik." },
+
+{ type:"tf", cat:"Blok / szarża", q:"Aby kontakt uznać za szarżę, obrońca musi zająć legalną pozycję obronną, zanim atakujący rozpocznie ruch rzutowy.",
+  correct:true, fact:"Legalna pozycja obronna zajęta odpowiednio wcześnie decyduje o szarży; spóźniona = blok." },
+
+{ type:"abcd", cat:"Zasada cylindra (art. 33)", q:"Co obejmuje 'cylinder' zawodnika wg zasady pionowości?",
+  opts:["Pionową przestrzeń wyznaczoną przez jego sylwetkę w naturalnej postawie","Tylko wysokość bioder","Do wysokości ramion","Całe pole podkoszowe"],
+  correct:0, fact:"Cylinder to pionowa przestrzeń nad zawodnikiem wyznaczona przez stopy, tułów i ręce w naturalnej pozycji (art. 33)." },
+
+// ======================= PLK / OBL =======================
+{ type:"abcd", cat:"PLK — struktura", q:"Kto jest organizatorem i operatorem najwyższej klasy rozgrywkowej mężczyzn w Polsce?",
+  opts:["Polska Liga Koszykówki S.A.","PZKosz bezpośrednio","FIBA Europe","Ministerstwo Sportu"],
+  correct:0, fact:"Rozgrywki prowadzi spółka Polska Liga Koszykówki S.A. we współpracy z PZKosz." },
+
+{ type:"abcd", cat:"OBL — nazwa", q:"Jak brzmi aktualna pełna nazwa najwyższej klasy rozgrywkowej z uwzględnieniem sponsora tytularnego?",
+  opts:["Orlen Basket Liga","Energa Basket Liga","Tauron Basket Liga","PKO Ekstraklasa Koszykówki"],
+  correct:0, fact:"Obecnie najwyższa klasa to Orlen Basket Liga (OBL)." },
+
+{ type:"estimate", cat:"OBL — liczba drużyn", q:"Ile drużyn występuje w sezonie zasadniczym Orlen Basket Ligi?",
+  min:12, max:20, step:1, answer:16, unit:"", tol:0,
+  fact:"Orlen Basket Liga liczy 16 drużyn w sezonie zasadniczym." },
+
+{ type:"abcd", cat:"PLK — format finału", q:"W jakim formacie rozgrywana jest seria finałowa play-off o mistrzostwo Polski?",
+  opts:["Do 4 zwycięstw (best-of-7)","Do 3 zwycięstw (best-of-5)","Jeden mecz","Dwumecz"],
+  correct:0, fact:"Finał PLK: do 4 wygranych meczów." },
+
+{ type:"abcd", cat:"Superpuchar", q:"Kto zwykle rywalizuje w meczu o Superpuchar Polski otwierającym sezon?",
+  opts:["Mistrz Polski i zdobywca Pucharu Polski","Dwa najlepsze zespoły rundy zasadniczej","Mistrz i wicemistrz","Zwycięzcy grup"],
+  correct:0, fact:"Superpuchar to mecz mistrza Polski ze zdobywcą Pucharu Polski." },
+
+{ type:"tf", cat:"Puchar Polski", q:"Zdobywca Pucharu Polski uzyskuje prawo gry w Superpucharze.",
+  correct:true, fact:"Zdobywca Pucharu Polski to jeden z dwóch uczestników Superpucharu." },
+
+{ type:"abcd", cat:"Mistrzowie", q:"Który klub jest najbardziej utytułowany w historii mistrzostw Polski mężczyzn?",
+  opts:["Śląsk Wrocław","Anwil Włocławek","Zastal Zielona Góra","Turów Zgorzelec"],
+  correct:0, fact:"Śląsk Wrocław to najbardziej utytułowany klub w historii polskiej koszykówki mężczyzn." },
+
+{ type:"tf", cat:"Kluby", q:"Anwil Włocławek ma w dorobku mistrzostwo Polski.",
+  correct:true, fact:"Anwil Włocławek zdobywał mistrzostwo Polski." },
+
+{ type:"abcd", cat:"Kluby", q:"Pod jakimi nazwami sponsorskimi występował klub z Zielonej Góry w czasie mistrzowskich sukcesów ostatniej dekady?",
+  opts:["Stelmet / Enea Zastal BC","Rosa / Polski Cukier","Anwil / Włocłavia","Turów / Zgorzelec BC"],
+  correct:0, fact:"Zielonogórzanie grali m.in. jako Stelmet i Enea Zastal BC." },
+
+{ type:"abcd", cat:"PLK — zaplecze", q:"Jak nazywa się bezpośrednie zaplecze najwyższej klasy mężczyzn?",
+  opts:["I liga mężczyzn (1LM)","II liga","Ekstraklasa B","Puchar Polski"],
+  correct:0, fact:"Zapleczem OBL jest I liga mężczyzn (1LM)." },
+
+{ type:"tf", cat:"PLK — sezon", q:"Rozgrywki PLK toczą się w systemie jesień–wiosna.",
+  correct:true, fact:"Sezon PLK rozgrywany jest w cyklu jesień–wiosna." },
+
+{ type:"abcd", cat:"OBLK", q:"Czego dotyczy skrót OBLK?",
+  opts:["Najwyższej klasy rozgrywek koszykówki kobiet","Pucharu juniorów","Ligi rezerw","Rozgrywek 3x3"],
+  correct:0, fact:"OBLK to Orlen Basket Liga Kobiet." },
+
+{ type:"tf", cat:"Europejskie puchary", q:"Kluby PLK rywalizują m.in. w Lidze Mistrzów FIBA (BCL) i FIBA Europe Cup.",
+  correct:true, fact:"Polskie kluby startują w BCL i FIBA Europe Cup." },
+
+{ type:"abcd", cat:"Puchar Polski — format", q:"W jakim formacie rozgrywany jest zwykle finałowy turniej Pucharu Polski mężczyzn?",
+  opts:["Turniej finałowy najlepszych drużyn w jednym mieście","Dwumecz","Jeden mecz sezonu","Seria do 3 zwycięstw"],
+  correct:0, fact:"Puchar Polski to zwykle turniej finałowy w mieście-gospodarzu." },
+
+// ======== ART. 5 — KONTUZJA / POMOC ========
+{ type:"tf", cat:"Kontuzja (art. 5)", q:"Jeśli fizjoterapeuta wejdzie na boisko i poprawi kontuzjowanemu zawodnikowi tejpy, uznaje się, że zawodnik otrzymał pomoc i musi zostać zmieniony.",
+  correct:true, fact:"Wejście osoby z ławki, by pomóc zawodnikowi, oznacza udzielenie pomocy — zawodnik musi zostać zmieniony (art. 5-1/5-3)." },
+
+{ type:"abcd", cat:"Kontuzja (art. 5)", q:"Kiedy przyjmuje się, że kontuzjowanemu zawodnikowi 'udzielono pomocy' (co wymusza zmianę)?",
+  opts:["Gdy osoba z ławki wejdzie na boisko do zawodnika","Dopiero po opatrzeniu urazu","Tylko gdy wejdzie lekarz","Nigdy, jeśli zawodnik chce grać dalej"],
+  correct:0, fact:"Samo wejście uprawnionej osoby z ławki na boisko do zawodnika liczy się jako pomoc (art. 5-1)." },
+
+// ======== ART. 7 — TRENERZY ========
+{ type:"estimate", cat:"Trener (art. 7)", q:"Na ile minut przed meczem trener musi wręczyć sekretarzowi listę zawodników?",
+  min:20, max:60, step:5, answer:40, unit:"min", tol:0,
+  fact:"Lista drużyny musi trafić do sekretarza co najmniej 40 minut przed meczem (art. 7-1)." },
+
+{ type:"estimate", cat:"Skład (art. 7)", q:"Ilu maksymalnie członków drużyny uprawnionych do gry może być na meczu?",
+  min:8, max:16, step:1, answer:12, unit:"", tol:0,
+  fact:"Do gry uprawnionych jest maksymalnie 12 członków drużyny (art. 7-3)." },
+
+// ======== ART. 15 — AKCJA RZUTOWA ========
+{ type:"abcd", cat:"Akcja rzutowa (art. 15)", q:"Kiedy według przepisów ROZPOCZYNA się akcja rzutowa zawodnika?",
+  opts:["Gdy zawodnik rozpoczyna ruch piłki w górę w kierunku kosza","Gdy złapie piłkę","Gdy zatrzyma się z piłką","Gdy minie obrońcę"],
+  correct:0, fact:"Akcja rzutowa zaczyna się w chwili rozpoczęcia ruchu piłki w górę ku koszowi (art. 15-1)." },
+
+{ type:"tf", cat:"Akcja rzutowa (art. 15)", q:"A1 zatrzymuje się z obiema stopami na podłodze, ale nie rozpoczął ruchu piłki w górę, gdy B1 go fauluje. To faul na zawodniku NIEbędącym w akcji rzutowej.",
+  correct:true, fact:"Bez rozpoczęcia ruchu piłki w górę zawodnik nie jest jeszcze w akcji rzutowej (art. 15-2)." },
+
+// ======== ART. 17 — WPROWADZENIE PIŁKI ========
+{ type:"tf", cat:"Wprowadzenie (art. 17)", q:"Podczas wprowadzania piłki obrońca może przełożyć ręce nad linią i wybić piłkę z rąk wprowadzającego, o ile jest ona nad obszarem boiska.",
+  correct:false, fact:"To obrońca odpowiada za unikanie kontaktu z piłką, dopóki wprowadzający jej nie wypuści — takie zagranie jest karane (art. 17-1/17-2)." },
+
+{ type:"abcd", cat:"Wprowadzenie (art. 17)", q:"Kto ponosi odpowiedzialność, jeśli obrońca sięga rękami poza linię i dotyka piłki trzymanej przez wprowadzającego?",
+  opts:["Obrońca — to on musi unikać kontaktu z piłką","Wprowadzający","Nikt — gra się toczy","Sędzia stolikowy"],
+  correct:0, fact:"Za piłkę trzymaną nad boiskiem przy wprowadzeniu odpowiada obrońca — musi unikać kontaktu (art. 17-1)." },
+
+// ======== ART. 23 — POZA BOISKIEM ========
+{ type:"abcd", cat:"Poza boiskiem (art. 23)", q:"Kiedy zawodnik jest uznawany za znajdującego się 'poza boiskiem'?",
+  opts:["Gdy jakakolwiek część jego ciała dotyka podłoża na lub za linią","Dopiero gdy obie stopy są za linią","Gdy piłka jest za linią","Gdy sędzia tak zdecyduje"],
+  correct:0, fact:"Zawodnik jest poza boiskiem, gdy jakakolwiek część ciała dotyka podłogi na linii lub za nią (art. 23-2)." },
+
+{ type:"tf", cat:"Poza boiskiem (art. 23)", q:"A1 dotyka piłką obrońcy B1, który stoi jedną stopą poza boiskiem. Odpowiedzialność za wyjście piłki poza boisko ponosi B1.",
+  correct:true, fact:"Ponieważ B1 był poza boiskiem, to on odpowiada za wyjście piłki — piłka wraca do drużyny A (art. 23-3)." },
+
+// ======== DODATKOWE PLK ========
+{ type:"tf", cat:"PLK — Superpuchar", q:"Superpuchar Polski to mecz otwierający nowy sezon rozgrywkowy.",
+  correct:true, fact:"Superpuchar tradycyjnie inauguruje sezon koszykarski w Polsce." },
+
+{ type:"abcd", cat:"PLK — play-off", q:"Ile zespołów awansuje zwykle do fazy play-off w Orlen Basket Lidze?",
+  opts:["Osiem najlepszych zespołów rundy zasadniczej","Cztery zespoły","Wszystkie 16","Dziesięć zespołów"],
+  correct:0, fact:"Do play-off OBL awansuje zwykle 8 najlepszych zespołów rundy zasadniczej." },
+
+// ======== ART. 13 — GRA PIŁKĄ ========
+{ type:"abcd", cat:"Gra piłką (art. 13)", q:"A2 w szybkim ataku celowo dotyka piłki GŁOWĄ, zanim ją złapie. Co orzeka sędzia?",
+  opts:["Błąd — nielegalne użycie głowy do zagrania piłką","Legalne zagranie","Faul","Rzut sędziowski"],
+  correct:0, fact:"Celowe użycie głowy, pięści lub nogi do zagrania piłką to błąd (art. 13-1/13-3)." },
+
+{ type:"tf", cat:"Gra piłką (art. 13)", q:"Podniesienie partnera z drużyny, aby mógł zagrać piłką wyżej, jest dozwolone.",
+  correct:false, fact:"Zwiększanie wzrostu lub zasięgu zawodnika (np. podnoszenie partnera) jest błędem (art. 13-4)." },
+
+{ type:"abcd", cat:"Gra piłką (art. 13)", q:"A1 po zakończeniu kozłowania wkłada piłkę między nogi, udając podanie. Jak to ocenić?",
+  opts:["Błąd nielegalnego dotknięcia piłki nogą","Legalny zwód","Faul ofensywny","Kroki"],
+  correct:0, fact:"Włożenie piłki między nogi dla symulacji podania to błąd nielegalnego użycia nogi (art. 13-2)." },
+
+// ======== ART. 14 — POSIADANIE / OPÓŹNIANIE ========
+{ type:"abcd", cat:"Posiadanie (art. 14)", q:"Kiedy rozpoczyna się posiadanie piłki przez drużynę?",
+  opts:["Gdy zawodnik trzyma lub kozłuje żywą piłkę, albo ma ją do wprowadzenia/rzutu wolnego","Dopiero po pierwszym podaniu","Po przekroczeniu połowy","Gdy sędzia da sygnał"],
+  correct:0, fact:"Posiadanie zaczyna się z chwilą kontroli żywej piłki lub jej dyspozycji do gry (art. 14-1)." },
+
+{ type:"tf", cat:"Opóźnianie (art. 14)", q:"Jeśli zawodnik celowo opóźnia wznowienie gry, sędzia może położyć piłkę na podłodze — staje się ona wtedy żywa, a zegar akcji może biec.",
+  correct:true, fact:"Przy opóźnianiu sędzia kładzie piłkę w miejscu wprowadzenia i staje się ona żywa (art. 14-2)." },
+
+// ======== ART. 43 — RZUTY WOLNE (ustawienie) ========
+{ type:"abcd", cat:"Rzuty wolne (art. 43)", q:"Gdzie muszą pozostać zawodnicy, którzy NIE zajmują miejsc wzdłuż pola przy rzucie wolnym?",
+  opts:["Za przedłużeniem linii rzutów wolnych i za linią za 3 punkty","Na środku boiska","Przy ławkach","W dowolnym miejscu"],
+  correct:0, fact:"Zawodnicy niezajmujący miejsc muszą być za przedłużeniem linii rzutów wolnych i za linią za 3 (art. 43-1)." },
+
+{ type:"tf", cat:"Rzuty wolne (art. 43)", q:"Jeśli podczas ostatniego rzutu wolnego zawodnicy obu drużyn popełnią błąd, dochodzi do sytuacji rzutu sędziowskiego (strzałka).",
+  correct:true, fact:"Obopólny błąd przy ostatnim rzucie wolnym prowadzi do sytuacji naprzemiennego posiadania (art. 43-3)." },
+
+// ======== ART. 8 — KONIEC KWARTY ========
+{ type:"abcd", cat:"Koniec kwarty (art. 8)", q:"A1 rzuca za 3, a gdy piłka jest w powietrzu, brzmi syrena kończąca 4. kwartę. Po syrenie B1 fauluje rzucającego. Co przysługuje?",
+  opts:["Należne rzuty wolne — faul na rzucającym uznaje się mimo syreny","Nic — kwarta się skończyła","Powtórka rzutu","Rzut sędziowski w dogrywce"],
+  correct:0, fact:"Faul na zawodniku w akcji rzutowej, którego rzut wciąż jest w powietrzu, skutkuje przyznaniem rzutów wolnych (art. 8-3)." },
+
+{ type:"estimate", cat:"Przerwa meczu (art. 8)", q:"Na ile minut przed wyznaczoną godziną rozpoczęcia meczu rozpoczyna się 'przerwa meczu'?",
+  min:10, max:30, step:5, answer:20, unit:"min", tol:0,
+  fact:"Przerwa meczu zaczyna się 20 minut przed wyznaczoną godziną startu (art. 8-1)." },
+
+// ======== DODATKOWE PLK ========
+{ type:"tf", cat:"PLK — awans", q:"Zwycięzca I ligi mężczyzn (1LM) ma szansę awansu do Orlen Basket Ligi.",
+  correct:true, fact:"I liga mężczyzn jest zapleczem OBL, a jej najlepsze zespoły mogą awansować." },
+
+{ type:"abcd", cat:"PLK — MVP", q:"Co oznacza nagroda MVP przyznawana w rozgrywkach PLK?",
+  opts:["Najbardziej wartościowy zawodnik (Most Valuable Player)","Najlepszy trener sezonu","Najlepszy młody zawodnik","Najlepszy obrońca"],
+  correct:0, fact:"MVP to nagroda dla najbardziej wartościowego zawodnika rozgrywek." },
+
+];
+/* ============================================================
+   SILNIK
+   ============================================================ */
+const $ = s => document.querySelector(s);
+let deck=[], idx=0, correctCount=0, points=0, answered=false, tickStart=0;
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+function buildDeck(){
+  const shuffled=shuffle([...BANK]);
+  const picked=[]; let lastCat=null;
+  for(const q of shuffled){
+    if(picked.length>=CONFIG.totalQuestions) break;
+    if(q.cat===lastCat) continue;
+    picked.push(q); lastCat=q.cat;
+  }
+  let i=0;
+  while(picked.length<CONFIG.totalQuestions && i<shuffled.length){
+    if(!picked.includes(shuffled[i])) picked.push(shuffled[i]); i++;
+  }
+  return picked.slice(0,CONFIG.totalQuestions);
+}
+
+function start(){
+  deck=buildDeck(); idx=0;correctCount=0;points=0;
+  $('#s-start').classList.add('hidden');$('#s-result').classList.add('hidden');
+  $('#s-game').classList.remove('hidden');
+  render();
+}
+
+function render(){
+  answered=false;
+  const q=deck[idx];
+  $('#qcount').textContent=(idx+1)+' / '+deck.length;
+  $('#livepts').textContent=points+' pkt';
+  $('#pfill').style.width=(idx/deck.length*100)+'%';
+  $('#fact').classList.remove('show');$('#fact').innerHTML='';
+  $('#nextWrap').classList.add('hidden');
+
+  let html='<span class="cat">'+q.cat+'<span class="diff">· hard</span></span><div class="q">'+q.q+'</div>';
+  if(q.type==='abcd'){
+    const order=shuffle(q.opts.map((t,i)=>({t,i})));
+    html+='<div class="opts">';
+    order.forEach((o,p)=>html+='<button class="opt" data-i="'+o.i+'"><span class="k">'+String.fromCharCode(65+p)+'</span>'+o.t+'</button>');
+    html+='</div>';
+  } else if(q.type==='tf'){
+    html+='<div class="opts"><button class="opt" data-i="true"><span class="k">P</span>Prawda</button><button class="opt" data-i="false"><span class="k">F</span>Fałsz</button></div>';
+  } else {
+    const mid=Math.round((q.min+q.max)/2);
+    const u=q.unit?(' '+q.unit):'';
+    html+='<div class="slwrap"><div class="slval" id="slval">'+mid+u+'</div><input type="range" id="slider" min="'+q.min+'" max="'+q.max+'" step="'+q.step+'" value="'+mid+'"><div class="slmm"><span>'+q.min+'</span><span>'+q.max+'</span></div></div><div class="next-wrap"><button class="btn" id="slConfirm">Zatwierdź</button></div>';
+  }
+  $('#qbody').innerHTML=html;
+
+  if(q.type==='estimate'){
+    const sl=$('#slider'),out=$('#slval'),u=q.unit?(' '+q.unit):'';
+    sl.oninput=()=>out.textContent=sl.value+u;
+    $('#slConfirm').onclick=()=>answerEstimate(+sl.value);
+  } else {
+    document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answerChoice(b));
+  }
+  startTimer();
+}
+
+function paintClock(){ /* licznik czasu usunięty — czas mierzony w tle */ }
+function startTimer(){
+  tickStart=Date.now();
+  // pasek postępu czasu wyłączony (brak presji); mierzymy tylko czas do punktacji
+  const tf=$('#tfill'); if(tf){ tf.style.transition='none'; tf.style.width='0%'; }
+}
+function stopTimer(){ /* brak odliczania do zatrzymania */ }
+// czas odpowiedzi w sekundach; do bonusu liczy się okno CONFIG.speedWindow
+function elapsed(){return (Date.now()-tickStart)/1000;}
+
+function award(correct){
+  if(!correct)return 0;
+  const e=elapsed();
+  // pełny bonus za odpowiedź poniżej speedWindow, potem liniowo maleje do 0
+  const speed=Math.round(Math.max(0,(CONFIG.speedWindow-e))/CONFIG.speedWindow*CONFIG.speedBonusMax);
+  const g=CONFIG.basePoints+speed;
+  points+=g;correctCount++;
+  return g;
+}
+
+function answerChoice(btn){
+  if(answered)return;answered=true;stopTimer();
+  const q=deck[idx],val=btn.dataset.i;
+  const correct=(q.type==='tf')?(String(q.correct)===val):(Number(val)===q.correct);
+  document.querySelectorAll('.opt').forEach(b=>{
+    b.disabled=true;const bv=b.dataset.i;
+    const bc=(q.type==='tf')?(String(q.correct)===bv):(Number(bv)===q.correct);
+    if(bc)b.classList.add('correct');
+  });
+  if(!correct)btn.classList.add('wrong');
+  showFact(correct,award(correct),q.fact);
+}
+function answerEstimate(val){
+  if(answered)return;answered=true;stopTimer();
+  const q=deck[idx];const correct=Math.abs(val-q.answer)<=q.tol;
+  const g=award(correct);const u=q.unit?(' '+q.unit):'';
+  showFact(correct,g,'Twój typ: <b>'+val+u+'</b> · Poprawnie: <b>'+q.answer+u+'</b>. '+q.fact);
+}
+function showFact(correct,gain,text){
+  $('#livepts').textContent=points+' pkt';
+  const g=(correct&&gain>0)?'<span class="gain">+'+gain+'</span>':'';
+  $('#fact').innerHTML=g+'<b>'+(correct?'✓ Dobrze!':'✗ Pudło.')+'</b> '+text;
+  $('#fact').classList.add('show');
+  $('#nextWrap').classList.remove('hidden');
+  $('#nextBtn').textContent=(idx+1<deck.length)?'Dalej →':'Zobacz wynik →';
+}
+$('#nextBtn').onclick=()=>{idx++; if(idx<deck.length)render(); else finish();};
+
+/* ============ RANKING NA ŻYWO (Supabase) ============
+   Wspólny ranking dla wszystkich urządzeń. Zapis i odczyt przez
+   REST (PostgREST). Tabela: scores(nick, score, correct). */
+const SB = {
+  url: CONFIG.supabaseUrl.replace(/\/+$/,'') + '/rest/v1/scores',
+  headers: {
+    'apikey': CONFIG.supabaseKey,
+    'Authorization': 'Bearer ' + CONFIG.supabaseKey,
+    'Content-Type': 'application/json'
+  }
+};
+
+// pobierz top 100 wg wyniku malejąco (starsze wyżej przy remisie)
+async function loadLB(){
+  try{
+    const url = SB.url + '?select=nick,score,correct,created_at&order=score.desc,created_at.asc&limit=100';
+    const r = await fetch(url, { headers: SB.headers });
+    if(!r.ok) return [];
+    const data = await r.json();
+    return data.map(x=>({ nick:x.nick, score:x.score, correct:x.correct, ts:x.created_at }));
+  }catch(e){ return []; }
+}
+
+// zapisz wynik; zwróć true/false
+async function saveScore(nick, score, correct){
+  try{
+    const r = await fetch(SB.url, {
+      method:'POST',
+      headers: SB.headers,
+      body: JSON.stringify({ nick, score, correct })
+    });
+    return r.ok;
+  }catch(e){ return false; }
+}
+
+function provisionalRank(list,pts){let h=0;list.forEach(x=>{if(x.score>pts)h++;});return h+1;}
+
+let pendingRank=1;
+async function finish(){
+  stopTimer();
+  $('#s-game').classList.add('hidden');
+  $('#s-result').classList.remove('hidden');
+  $('#finalScore').textContent=points+' pkt';
+  $('#finalSub').textContent=correctCount+' / '+deck.length+' poprawnych · '+points+' pkt z czasem';
+
+  // pozycja liczona OD RAZU po zakończeniu, na podstawie wyniku i aktualnego rankingu
+  const list=await loadLB();
+  pendingRank=provisionalRank(list,points);
+  const st=$('#standing');
+  $('#posNum').textContent='#'+pendingRank;
+  if(pendingRank<=4){st.classList.add('podium');$('#posLabel').textContent='Miejsce z nagrodą! Wpisz nick, aby zająć pozycję.';}
+  else{st.classList.remove('podium');$('#posLabel').textContent='Twoje miejsce w rankingu (na podstawie wyniku)';}
+  $('#gate').classList.remove('hidden');
+  $('#lbWrap').classList.add('hidden');
+  $('#nick').value='';$('#err').style.display='none';
+}
+
+$('#saveBtn').onclick=async ()=>{
+  const nick=$('#nick').value.trim();
+  if(nick.length<2){$('#err').style.display='block';return;}
+  $('#err').style.display='none';
+
+  const btn=$('#saveBtn');
+  btn.disabled=true; const label=btn.textContent; btn.textContent='Zapisuję...';
+
+  const ok = await saveScore(nick, points, correctCount);
+  if(!ok){
+    btn.disabled=false; btn.textContent=label;
+    $('#err').textContent='Nie udało się zapisać wyniku. Sprawdź połączenie i spróbuj ponownie.';
+    $('#err').style.display='block';
+    return;
+  }
+
+  // pobierz świeży, wspólny ranking (z naszym właśnie dodanym wynikiem)
+  const list=await loadLB();
+  renderLB(list,nick);
+  $('#gate').classList.add('hidden');
+  $('#lbWrap').classList.remove('hidden');
+  btn.textContent=label;
+  startLBRefresh(nick);
+};
+
+/* odświeżanie rankingu na ekranie wyniku — widać kolejne osoby na żywo */
+let lbRefreshTimer=null, lbCurrentNick=null;
+function startLBRefresh(nick){
+  lbCurrentNick=nick;
+  if(lbRefreshTimer) clearInterval(lbRefreshTimer);
+  lbRefreshTimer=setInterval(async ()=>{
+    if($('#lbWrap').classList.contains('hidden')) return;
+    const list=await loadLB();
+    renderLB(list, lbCurrentNick);
+  }, 5000);
+}
+
+const PRIZES={1:'Courtside 2 os.',2:'Finał niedz. 2×',3:'Sob. mecz 1 · 2×',4:'Sob. mecz 2 · 2×'};
+function renderLB(list,myNick){
+  const top=list.slice(0,10);
+  let html='';
+  top.forEach((x,i)=>{
+    const rk=i+1;
+    const cls=(rk<=4?'top ':'')+(myNick&&x.nick===myNick?'me':'');
+    const prize=PRIZES[rk]?'<span class="pr"> · '+PRIZES[rk]+'</span>':'';
+    html+='<div class="lbrow '+cls+'"><span class="rk">'+rk+'</span><span class="nm">'+esc(x.nick)+prize+'</span><span class="sc">'+x.score+'</span></div>';
+  });
+  const myPos=myNick?list.findIndex(x=>x.nick===myNick&&x.score===points):-1;
+  if(myPos>=10){html+='<div class="lbrow me"><span class="rk">'+(myPos+1)+'</span><span class="nm">'+esc(myNick)+' (Ty)</span><span class="sc">'+points+'</span></div>';}
+  $('#lbList').innerHTML=html;
+}
+
+$('#startBtn').onclick=start;
+$('#againBtn').onclick=()=>{
+  if(lbRefreshTimer){clearInterval(lbRefreshTimer);lbRefreshTimer=null;}
+  $('#s-result').classList.add('hidden');$('#s-start').classList.remove('hidden');
+};
+</script>
+</body>
+</html>
