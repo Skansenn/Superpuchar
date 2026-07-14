@@ -1449,10 +1449,21 @@ function showLeaderboard(list, myNick){
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 
 // ── input ──
-tap.addEventListener('touchstart',e=>{e.preventDefault();shoot();},{passive:false});
-tap.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'){e.preventDefault();shoot();}});
+document.addEventListener('touchstart',e=>{
+  if(state!=='play')return;
+  if(e.target.tagName==='BUTTON'||e.target.closest('button'))return;
+  e.preventDefault(); shoot();
+},{passive:false});
+
+document.addEventListener('pointerdown',e=>{
+  if(state!=='play')return;
+  if(e.pointerType==='touch')return;
+  if(e.target.tagName==='BUTTON'||e.target.closest('button'))return;
+  e.preventDefault(); shoot();
+});
+
 document.addEventListener('keydown',e=>{
-  if(e.code==='Space' && state==='play'){e.preventDefault();shoot();}
+  if(e.code==='Space' && state==='play'){e.preventDefault(); shoot();}
 });
 
 showIntro();
