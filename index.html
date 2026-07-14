@@ -433,7 +433,7 @@ const BANK = [
   fact:"305 cm — czyli 10 stóp." },
 
 { type:"estimate", cat:"Linia za 3", q:"W jakiej odległości (na wprost, w metrach) przebiega łuk za 3 punkty w FIBA?",
-  min:6, max:8, step:1, answer:7, unit:"m", tol:1,
+  min:6, max:8, step:0.05, answer:6.75, unit:"m", tol:0.1,
   fact:"Linia za 3 FIBA: 6,75 m na wprost, 6,60 m w narożnikach." },
 
 { type:"estimate", cat:"Piłka", q:"Jaki rozmiar piłki (numer) używany jest w koszykówce mężczyzn?",
@@ -895,10 +895,12 @@ function renderQuiz(){
       '<button class="opt" data-v="false">Fałsz</button>'+
     '</div>';
   } else if(item.type==='estimate'){
-    const mid = Math.round((item.min + item.max) / 2);
+    const mid = (item.min + item.max) / 2;
+    const isDecimal = item.step % 1 !== 0;
+    const displayMid = isDecimal ? mid.toFixed(2) : Math.round(mid);
     const unit = item.unit ? ' ' + item.unit : '';
     html += '<div id="opts-area" style="text-align:center;padding:10px 0;">'+
-      '<div id="slval" style="font-size:32px;font-weight:bold;color:var(--amber);margin-bottom:12px;">'+mid+unit+'</div>'+
+      '<div id="slval" style="font-size:32px;font-weight:bold;color:var(--amber);margin-bottom:12px;">'+displayMid+unit+'</div>'+
       '<input type="range" id="slider" min="'+item.min+'" max="'+item.max+'" step="'+item.step+'" value="'+mid+'" style="width:100%;margin-bottom:16px;">'+
       '<div style="display:flex;justify-content:between;font-size:14px;color:var(--dim);margin-bottom:16px;">'+
         '<span style="flex:1;text-align:left;">'+item.min+'</span>'+
@@ -929,7 +931,11 @@ function renderQuiz(){
     const sl = document.getElementById('slider');
     const out = document.getElementById('slval');
     const unit = item.unit ? ' ' + item.unit : '';
-    sl.oninput = () => out.textContent = sl.value + unit;
+    const isDecimal = item.step % 1 !== 0;
+    sl.oninput = () => {
+      const val = parseFloat(sl.value);
+      out.textContent = (isDecimal ? val.toFixed(2) : val) + unit;
+    };
     document.getElementById('slConfirm').onclick = () => handleEstimateAnswer(Number(sl.value));
   }
 }
