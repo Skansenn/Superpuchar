@@ -722,7 +722,8 @@ const BANK = [
   {"type":"estimate","cat":"PLK — Śląsk Wrocław","q":"Ile tytułów mistrza Polski ma WKS Śląsk Wrocław?","min":10,"max":25,"step":1,"answer":18,"tol":5,"unit":""},
   {"type":"estimate","cat":"PLK — Reprezentacja","q":"Ile punktów zdobył Mateusz Ponitka w ćwierćfinale EuroBasketu 2022 przeciwko Słowenii?","min":10,"max":40,"step":1,"answer":26,"tol":5,"unit":""},
   {"type":"estimate","cat":"PLK — Reprezentacja","q":"Ile punktów zdobyła Polska w zwycięskim ćwierćfinale EuroBasketu 2022 ze Słowenią?","min":70,"max":110,"step":1,"answer":90,"tol":5,"unit":""},
-  {"type":"estimate","cat":"PLK — Superpuchar","q":"W którym roku rozegrano pierwszy mecz o Superpuchar Polski mężczyzn?","min":1990,"max":2010,"step":1,"answer":1999,"tol":5,"unit":""}
+  {"type":"estimate","cat":"PLK — Superpuchar","q":"W którym roku rozegrano pierwszy mecz o Superpuchar Polski mężczyzn?","min":1990,"max":2010,"step":1,"answer":1999,"tol":5,"unit":""},
+  {"type":"abcd","cat":"PLK — Historia","q":"Kto był trenerem reprezentacji Polski podczas srebrnego EuroBasketu in 1963 roku?","opts":["Witold Zagórski","Kazimierz Młynarczyk","Jerzy Kłyszejko","Eugeniusz Kijewski"],"correct":0,"fact":"Witold Zagórski poprowadził Polskę do srebrnego medalu."}
 ];
 
 const $ = s => document.querySelector(s);
@@ -792,6 +793,46 @@ let quiz=[], qi=0, picked=null, qpts=0, qok=0;
 let qTimeLeft=QUIZ_TIME, qTimerId=null;
 let timerId=null;
 
+// Particle system
+let particles = [];
+function spawnParticles(x, y, color) {
+  for(let i=0; i<15; i++) {
+    particles.push({
+      x: x,
+      y: y,
+      vx: (Math.random() - 0.5) * 5,
+      vy: (Math.random() - 0.8) * 6,
+      radius: Math.random() * 3 + 1,
+      color: color,
+      alpha: 1,
+      decay: Math.random() * 0.03 + 0.02
+    });
+  }
+}
+function updateParticles() {
+  for(let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.12;
+    p.alpha -= p.decay;
+    if(p.alpha <= 0) particles.splice(i, 1);
+  }
+}
+function drawParticles() {
+  for(const p of particles) {
+    g.save();
+    g.globalAlpha = p.alpha;
+    g.shadowColor = p.color;
+    g.shadowBlur = 4;
+    g.fillStyle = p.color;
+    g.beginPath();
+    g.arc(p.x, p.y, p.radius, 0, 2*Math.PI);
+    g.fill();
+    g.restore();
+  }
+}
+
 try{const b=localStorage.getItem('arcadeplk_best'); if(b)best=+b;}catch(e){}
 
 function px(x,y,w,h,c){g.fillStyle=c;g.fillRect(x|0,y|0,w|0,h|0);}
@@ -799,30 +840,167 @@ function text(t,x,y,c,size){g.fillStyle=c;g.font='bold '+size+'px "Courier New",
 
 function drawScene(){
   g.clearRect(0,0,CW,CH);
-  px(0,0,CW,CH,COL.bg);
-  px(0,236,CW,64,COL.floor);
-  for(let i=0;i<CW;i+=32){px(i,236,4,64,COL.floorLt);}
-  px(80,252,240,4,COL.line);
-  px(172,52,56,8,COL.board);
-  px(192,60,16,20,COL.post);
-  px(168,84,64,8,COL.rim);
-  for(let i=0;i<4;i++) px(176+i*14,92,6,24,COL.net);
-  g.strokeStyle='rgba(40,209,124,0.2)';g.lineWidth=2;
-  g.beginPath();g.arc(200,240,144,Math.PI,2*Math.PI);g.stroke();
+  
+  // Background gradient (night stadium vibe)
+  const bgGrad = g.createLinearGradient(0, 0, 0, CH);
+  bgGrad.addColorStop(0, '#060a13');
+  bgGrad.addColorStop(1, '#0e1726');
+  g.fillStyle = bgGrad;
+  g.fillRect(0, 0, CW, CH);
+  
+  // Floor (dark court floor)
+  const floorGrad = g.createLinearGradient(0, 236, 0, CH);
+  floorGrad.addColorStop(0, '#101726');
+  floorGrad.addColorStop(1, '#1e293b');
+  g.fillStyle = floorGrad;
+  g.fillRect(0, 236, CW, 64);
+  
+  // Wooden court lines
+  g.strokeStyle = 'rgba(51, 65, 85, 0.2)';
+  g.lineWidth = 1;
+  for(let i=0; i<CW; i+=24){
+    g.beginPath(); g.moveTo(i, 236); g.lineTo(i, CH); g.stroke();
+  }
+  
+  // Court line (3-point line arc & key)
+  g.strokeStyle = 'rgba(71, 85, 105, 0.4)';
+  g.lineWidth = 2;
+  g.strokeRect(120, 236, 160, 64);
+  g.beginPath();
+  g.arc(200, 240, 120, Math.PI, 2*Math.PI);
+  g.stroke();
+  
+  // Post (with metallic gradient)
+  const postGrad = g.createLinearGradient(192, 60, 208, 60);
+  postGrad.addColorStop(0, '#334155');
+  postGrad.addColorStop(0.5, '#64748b');
+  postGrad.addColorStop(1, '#334155');
+  g.fillStyle = postGrad;
+  g.fillRect(192, 60, 16, 176);
+  
+  // Backboard (rounded glass look with orange square)
+  g.fillStyle = 'rgba(30, 41, 59, 0.85)';
+  g.strokeStyle = '#64748b';
+  g.lineWidth = 2;
+  g.beginPath();
+  g.roundRect(140, 40, 120, 80, 8);
+  g.fill();
+  g.stroke();
+  
+  // Inner orange box
+  g.strokeStyle = '#ff4d2e';
+  g.lineWidth = 2;
+  g.strokeRect(178, 80, 44, 30);
+  
+  // Rim attachment
+  g.fillStyle = '#ff4d2e';
+  g.fillRect(192, 100, 16, 8);
+  
+  // Net (criss-cross realistic look)
+  g.strokeStyle = 'rgba(226, 232, 240, 0.65)';
+  g.lineWidth = 1.5;
+  const netY = 106, netH = 34;
+  const netW0 = 40, netW1 = 20;
+  const netX0 = 180, netX1 = 190;
+  
+  for(let i=0; i<=5; i++) {
+    const t = i / 5;
+    const px0 = netX0 + netW0 * t;
+    g.beginPath();
+    g.moveTo(px0, netY);
+    g.lineTo(netX1 + netW1 * (1 - t), netY + netH);
+    g.stroke();
+    
+    g.beginPath();
+    g.moveTo(px0, netY);
+    g.lineTo(netX1 + netW1 * t, netY + netH);
+    g.stroke();
+  }
+  
+  // Rim (with glowing orange effect)
+  g.shadowColor = '#ff4d2e';
+  g.shadowBlur = 8;
+  g.strokeStyle = '#ff4d2e';
+  g.lineWidth = 3.5;
+  g.beginPath();
+  g.ellipse(200, 106, 20, 5, 0, 0, 2*Math.PI);
+  g.stroke();
+  
+  // Reset shadow effects
+  g.shadowColor = 'transparent';
+  g.shadowBlur = 0;
 }
-function drawBall(x,y){
-  px(x-10,y-10,20,20,COL.ballDk);
-  px(x-8,y-8,16,16,COL.ball);
-  px(x-2,y-8,2,16,COL.ballDk);
-  px(x-8,y-2,16,2,COL.ballDk);
+
+function drawBall(x,y, radius = 11){
+  // Sphere gradient (3D look)
+  const ballGrad = g.createRadialGradient(x - radius*0.3, y - radius*0.3, radius*0.1, x, y, radius);
+  ballGrad.addColorStop(0, '#ffa87d');
+  ballGrad.addColorStop(0.3, '#ff5722');
+  ballGrad.addColorStop(1, '#942200');
+  
+  g.beginPath();
+  g.arc(x, y, radius, 0, 2*Math.PI);
+  g.fillStyle = ballGrad;
+  g.fill();
+  
+  // Draw ball lines
+  g.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+  g.lineWidth = 1.2;
+  
+  // Horizontal line
+  g.beginPath();
+  g.ellipse(x, y, radius, radius*0.2, 0, 0, 2*Math.PI);
+  g.stroke();
+  
+  // Vertical line
+  g.beginPath();
+  g.ellipse(x, y, radius*0.2, radius, 0, 0, 2*Math.PI);
+  g.stroke();
 }
+
 function drawMeter(){
-  const bx=60,by=276,bw=280,bh=16;
-  px(bx,by,bw,bh,'#0b1626');
-  g.fillStyle='rgba(40,209,124,0.3)';g.fillRect(bx+bw*GOOD[0],by,bw*(GOOD[1]-GOOD[0]),bh);
-  g.fillStyle='rgba(255,194,77,0.55)';g.fillRect(bx+bw*PERFECT[0],by,bw*(PERFECT[1]-PERFECT[0]),bh);
-  px(bx+bw*meter-2,by-4,4,bh+8,COL.hot);
+  const bx=60,by=274,bw=280,bh=12;
+  
+  // Background track
+  g.fillStyle = '#151d30';
+  g.beginPath();
+  g.roundRect(bx, by, bw, bh, 6);
+  g.fill();
+  g.strokeStyle = '#22304a';
+  g.lineWidth = 1;
+  g.stroke();
+  
+  // GOOD target zone (green glow)
+  g.fillStyle = 'rgba(40, 209, 124, 0.25)';
+  g.fillRect(bx+bw*GOOD[0], by, bw*(GOOD[1]-GOOD[0]), bh);
+  
+  // PERFECT target zone (gold glow)
+  g.fillStyle = 'rgba(255, 194, 77, 0.6)';
+  g.fillRect(bx+bw*PERFECT[0], by, bw*(PERFECT[1]-PERFECT[0]), bh);
+  
+  // Border line of zones
+  g.strokeStyle = 'rgba(40, 209, 124, 0.5)';
+  g.strokeRect(bx+bw*GOOD[0], by, bw*(GOOD[1]-GOOD[0]), bh);
+  g.strokeStyle = 'rgba(255, 194, 77, 0.8)';
+  g.strokeRect(bx+bw*PERFECT[0], by, bw*(PERFECT[1]-PERFECT[0]), bh);
+  
+  // Needle (glowing pink pointer)
+  const nx = bx + bw * meter;
+  g.shadowColor = '#ff2d95';
+  g.shadowBlur = 6;
+  g.fillStyle = '#ff2d95';
+  
+  g.beginPath();
+  g.moveTo(nx - 4, by - 4);
+  g.lineTo(nx + 4, by - 4);
+  g.lineTo(nx, by + bh + 4);
+  g.closePath();
+  g.fill();
+  
+  g.shadowColor = 'transparent';
+  g.shadowBlur = 0;
 }
+
 function drawHUD(){
   g.textAlign='left';g.font='bold 16px "Archivo",sans-serif';
   g.fillStyle=COL.amber;g.fillText('PKT '+score,8,22);
@@ -832,9 +1010,12 @@ function drawHUD(){
   g.fillText(made+'/'+shots,200,22);
   if(streak>=3){g.fillStyle=streak>=6?COL.hot:COL.amber;g.font='bold 12px "Archivo",sans-serif';g.fillText((streak>=6?'ON FIRE x':'SERIA x')+streak,200,294);}
 }
+
 function renderCanvasContent(){
   drawScene();
-  if(ball){drawBall(ball.x,ball.y);} else if(state==='play'){drawBall(200,220);}
+  updateParticles();
+  drawParticles();
+  if(ball){drawBall(ball.x,ball.y,ball.size);} else if(state==='play'){drawBall(200,220,13);}
   if(flash){
     g.fillStyle=flash.c; g.font='bold 26px "Archivo",sans-serif'; g.textAlign='center';
     g.fillText(flash.t,200,148);
@@ -895,7 +1076,7 @@ function start(){
 
 function shoot(){
   if(state!=='play'||ball)return;
-  ball={x:200,y:220}; // freeze meter instantly
+  ball={x:200,y:220,size:13}; // freeze meter instantly
   SFX.shoot();
   const p=meter;
   const perfect=p>=PERFECT[0]&&p<=PERFECT[1];
@@ -909,7 +1090,8 @@ function shoot(){
     const x=200+(ok?0:68)*tt;
     const flat=220+(ok?-140:-110)*tt;
     const arc=Math.sin(tt*Math.PI)*140*arcH;
-    ball={x:x,y:flat-arc+(ok?0:tt*tt*80)};
+    const size=13 - 5.5*tt; // 3D depth shrinking
+    ball={x:x,y:flat-arc+(ok?0:tt*tt*80),size:size};
     if(tt>=1){
       clearInterval(anim);
       if(ok){
@@ -917,6 +1099,7 @@ function shoot(){
         const pts=(perfect?5:3)+Math.floor(streak/3);
         score+=pts;
         flash={t:perfect?'PERFECT +'+pts:'SWISH +'+pts,c:perfect?COL.amber:COL.neon};
+        spawnParticles(200, 106, perfect ? COL.amber : COL.neon);
         perfect?SFX.perfect():SFX.swish();
       }else{
         streak=0;
