@@ -206,6 +206,9 @@ const tap = document.getElementById('tap');
 const muteBtn = document.getElementById('mute');
 const stage = document.getElementById('stage');
 
+const pgeLogo = new Image();
+pgeLogo.src = 'Polska_Grupa_Energetyczna_logo.svg';
+
 const CW=400, CH=300;
 const COL = {
   bg:'#060a12', floor:'#1e293b', floorLt:'#334155', line:'#475569',
@@ -886,6 +889,11 @@ function drawScene(){
   g.roundRect(140, 40, 120, 80, 8);
   g.fill();
   g.stroke();
+  
+  // Draw PGE logo at the top of the backboard
+  try {
+    g.drawImage(pgeLogo, 182, 52, 36, 16);
+  } catch(e) {}
   
   // Inner orange box
   g.strokeStyle = '#ff4d2e';
