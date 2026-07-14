@@ -132,6 +132,9 @@
   <section id="s-game" class="card hidden">
     <div class="ghead">
       <span class="qcount" id="qcount">1 / 10</span>
+      <div class="timerbox" id="globalTimerBox">
+        <span class="tclock" id="globalTimer">60</span><span class="ts">s</span>
+      </div>
       <span class="livepts" id="livepts">0 pkt</span>
     </div>
     <div class="progress"><div class="fill" id="pfill"></div></div>
@@ -180,6 +183,7 @@ const CONFIG = {
   speedBonusMax: 150,    // maks. bonus za szybką odpowiedź
   speedWindow: 20,       // sek. — odpowiedź poniżej = pełny bonus, potem maleje do 0
   buyUrl: "https://bilety.plk.pl",
+  timeLimit: 60,         // czas na cały test w sekundach
   // Wspólny ranking na żywo (Supabase). Klucz publishable jest bezpieczny w przeglądarce.
   supabaseUrl: "https://iggcitoprqjkjlydnjmr.supabase.co",
   supabaseKey: "sb_publishable_McsTvhSVvSsJzhZoQcJxsA_LU-1bmPf"
@@ -623,10 +627,44 @@ function buildDeck(){
   return picked.slice(0,CONFIG.totalQuestions);
 }
 
+let globalTimerInterval = null;
+let timeLeft = 0;
+
+function startGlobalTimer(){
+  if(globalTimerInterval) clearInterval(globalTimerInterval);
+  timeLeft = CONFIG.timeLimit;
+  const box = $('#globalTimerBox');
+  box.classList.remove('warn', 'danger');
+  $('#globalTimer').textContent = timeLeft;
+  
+  globalTimerInterval = setInterval(() => {
+    timeLeft--;
+    $('#globalTimer').textContent = timeLeft;
+    if(timeLeft <= 10){
+      box.classList.remove('warn');
+      box.classList.add('danger');
+    } else if(timeLeft <= 20){
+      box.classList.add('warn');
+    }
+    if(timeLeft <= 0){
+      clearInterval(globalTimerInterval);
+      finish(true);
+    }
+  }, 1000);
+}
+
+function stopGlobalTimer(){
+  if(globalTimerInterval){
+    clearInterval(globalTimerInterval);
+    globalTimerInterval = null;
+  }
+}
+
 function start(){
   deck=buildDeck(); idx=0;correctCount=0;points=0;
   $('#s-start').classList.add('hidden');$('#s-result').classList.add('hidden');
   $('#s-game').classList.remove('hidden');
+  startGlobalTimer();
   render();
 }
 
@@ -750,12 +788,17 @@ async function saveScore(nick, score, correct){
 function provisionalRank(list,pts){let h=0;list.forEach(x=>{if(x.score>pts)h++;});return h+1;}
 
 let pendingRank=1;
-async function finish(){
+async function finish(timeOut = false){
+  stopGlobalTimer();
   stopTimer();
   $('#s-game').classList.add('hidden');
   $('#s-result').classList.remove('hidden');
   $('#finalScore').textContent=points+' pkt';
-  $('#finalSub').textContent=correctCount+' / '+deck.length+' poprawnych · '+points+' pkt z czasem';
+  if(timeOut){
+    $('#finalSub').textContent='Koniec czasu! Zdążyłeś odpowiedzieć na '+correctCount+' poprawnych · '+points+' pkt';
+  } else {
+    $('#finalSub').textContent=correctCount+' / '+deck.length+' poprawnych · '+points+' pkt z czasem';
+  }
 
   // pozycja liczona OD RAZU po zakończeniu, na podstawie wyniku i aktualnego rankingu
   const list=await loadLB();
