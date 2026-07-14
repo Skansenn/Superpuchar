@@ -197,6 +197,18 @@
   .standing .posl { font-size:13px; color:var(--muted); margin-top:2px; }
   .standing.podium { border-color:var(--gold); background:rgba(255,194,77,0.06); }
   .standing.podium .pos { color:var(--gold); }
+  .section-title {
+    font-family: var(--disp);
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 20px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
 </style>
 </head>
 <body>
@@ -1072,9 +1084,23 @@ function showCanvas(on){ stage.style.display=on?'block':'none'; }
 function showIntro(){
   state='intro'; showCanvas(false); tap.style.display='none'; hint.textContent='';
   panel.innerHTML=
+    '<div class="lead" style="font-size:15px;line-height:1.6;margin:12px 0 24px;text-align:center;">'+
+      'Pokaż, co potrafisz! Sprawdź się w zręcznościowych <b>rzutach za 3 punkty</b> na wirtualnym boisku, a następnie odpowiedz na <b>10 pytań quizowych</b> z przepisów i wiedzy o koszykówce.'+
+    '</div>'+
+    '<button class="btn" id="go">ZAGRAJ →</button>'+
+    (best>0?'<div class="amber" style="font-size:14px;margin-top:16px;text-align:center;font-weight:bold;">TWÓJ NAJLEPSZY WYNIK: '+best+' pkt</div>':'') +
+    '<div class="dim" style="font-size:12px;margin-top:24px;text-align:center;">Organizatorem wyzwania jest Polska Liga Koszykówki. Zdobądź bilety na mecze w Sosnowcu!</div>';
+  document.getElementById('go').onclick=showRules;
+}
+
+function showRules(){
+  state='rules';
+  panel.innerHTML=
+    '<div class="section-title">🎁 O co gramy? (Nagrody)</div>'+
     '<div class="prizes">'+
       PRIZES_LIST.map((p,i)=>'<div class="p"><div class="n">'+(i+1)+'</div><div class="t"><b>'+p.t+'</b><span>'+p.d+'</span></div></div>').join('')+
     '</div>'+
+    '<div class="section-title">📝 Jak gramy? (Zasady)</div>'+
     '<div class="rules">'+
       '<div>Najpierw <b>rzucasz za 3</b> w trybie Arcade</div>'+
       '<div>Na quiz masz dokładnie <b>100 sekund</b></div>'+
@@ -1082,10 +1108,12 @@ function showIntro(){
       '<div>Im <b>szybciej</b> odpowiesz, tym więcej punktów</div>'+
       '<div>Pytania z <b>przepisów FIBA i PLK</b> — poziom ekspercki</div>'+
     '</div>'+
-    '<button class="btn" id="go">PODEJMUJĘ WYZWANIE →</button>'+
-    '<div class="dim" style="font-size:12px;margin-top:12px;text-align:center;">Jeden udział na osobę. Po zakończeniu podajesz nick do rankingu.</div>'+
-    (best>0?'<div class="amber" style="font-size:14px;margin-top:8px;text-align:center;font-weight:bold;">TWÓJ REKORD: '+best+' pkt</div>':'');
-  document.getElementById('go').onclick=start;
+    '<div class="section-title">🏆 Ranking i Wyniki</div>'+
+    '<div class="lead" style="font-size:13.5px;margin:8px 0 16px;">Po zakończeniu wyzwania wpisujesz swój nick, aby zapisać wynik. Najlepsi gracze w tabeli wygrywają bilety na Superpuchar Polski w Sosnowcu!</div>'+
+    '<button class="btn" id="goStart">ROZPOCZNIJ GRĘ →</button>'+
+    '<button class="btn alt" id="backIntro" style="margin-top:8px;">← WSTĘP</button>';
+  document.getElementById('goStart').onclick=start;
+  document.getElementById('backIntro').onclick=showIntro;
 }
 
 function start(){
